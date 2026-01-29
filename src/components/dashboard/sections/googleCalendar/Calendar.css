@@ -1,0 +1,1125 @@
+/* ===== Calendario General ===== */
+.simple-calendar {
+    font-family: sans-serif;
+    width: 100%;
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+}
+
+.calendar-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 8px 16px;
+    background: #f5f5f5;
+    border-bottom: 1px solid #ddd;
+    min-height: 50px;
+    box-sizing: border-box;
+}
+
+.view-controls {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+}
+
+.view-controls button,
+.navigation-controls button,
+.today-btn {
+    margin: 0 4px;
+    padding: 6px 12px;
+    border: 1px solid #ccc;
+    background: #fff;
+    cursor: pointer;
+    border-radius: 4px;
+    font-size: 14px;
+    height: 32px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.2s ease;
+}
+
+.view-controls button:hover,
+.navigation-controls button:hover,
+.today-btn:hover {
+    background: #f8f9fa;
+    border-color: #adb5bd;
+}
+
+.view-controls button.active {
+    background: #007bff;
+    color: #fff;
+    border-color: #007bff;
+}
+
+.view-controls button.active:hover {
+    background: #0056b3;
+    border-color: #0056b3;
+}
+
+.navigation-controls {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 12px;
+    flex: 1;
+    max-width: 400px;
+}
+
+.navigation-controls button {
+    width: 32px;
+    height: 32px;
+    padding: 0;
+    font-weight: bold;
+    font-size: 16px;
+}
+
+.navigation-controls h2 {
+    margin: 0;
+    font-size: 18px;
+    font-weight: 600;
+    text-align: center;
+    min-width: 200px;
+    color: #333;
+}
+
+.today-btn {
+    background: #fff;
+    color: #333;
+    font-size: 14px;
+}
+
+.calendar-view {
+    flex: 1;
+    overflow: auto;
+    background: #fff;
+}
+
+/* ===== Vista Mensual ===== */
+.calendar-grid.month-view {
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+}
+
+.week-days {
+    display: grid;
+    grid-template-columns: repeat(7, 1fr);
+    background: #fafafa;
+    border-bottom: 1px solid #ddd;
+}
+
+.week-day {
+    padding: 8px 4px;
+    text-align: center;
+    font-weight: bold;
+    border-right: 1px solid #eee;
+    font-size: 12px;
+    color: #666;
+}
+
+.week-day:last-child {
+    border-right: none;
+}
+
+.calendar-days {
+    display: grid;
+    grid-template-columns: repeat(7, 1fr);
+    flex: 1;
+}
+
+.calendar-day {
+    border: 1px solid #eee;
+    min-height: 100px;
+    position: relative;
+    padding: 4px;
+    cursor: pointer;
+    transition: background-color 0.2s ease;
+}
+
+.calendar-day:hover {
+    background: #f8f9fa;
+}
+
+.calendar-day.today {
+    background: #e9f5ff;
+}
+
+.calendar-day.today:hover {
+    background: #d8ebff;
+}
+
+.calendar-day.empty {
+    background: #f9f9f9;
+    cursor: default;
+}
+
+.calendar-day.empty:hover {
+    background: #f9f9f9;
+}
+
+.day-number {
+    font-size: 12px;
+    font-weight: bold;
+    margin-bottom: 2px;
+    color: #333;
+}
+
+.calendar-day.today .day-number {
+    color: #007bff;
+    font-weight: 800;
+}
+
+.calendar-day.empty .day-number {
+    color: #ccc;
+}
+
+/* ===== Vista Semanal ===== */
+.week-view-container {
+    height: 100%;
+    overflow: auto;
+}
+
+.week-view {
+    display: flex;
+    height: 100%;
+    background: #fff;
+    overflow-x: auto;
+    min-width: min-content;
+    flex-direction: row;
+}
+
+.time-column {
+    width: 60px;
+    background: #fafafa;
+    border-right: 1px solid #ddd;
+    flex-shrink: 0;
+    position: sticky;
+    left: 0;
+    z-index: 10;
+    display: flex;
+    flex-direction: column;
+}
+
+.time-label {
+    height: 40px;
+    font-size: 12px;
+    text-align: right;
+    padding-right: 8px;
+    color: #666;
+    display: flex;
+    align-items: flex-start;
+    justify-content: flex-end;
+    border-bottom: 1px solid #f0f0f0;
+    font-weight: 500;
+}
+
+.time-label:last-child {
+    border-bottom: none;
+}
+
+.week-day-column {
+    flex: 1;
+    border-left: 1px solid #eee;
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    min-width: 120px;
+}
+
+.week-day-column:last-child {
+    border-right: 1px solid #eee;
+}
+
+.week-day-header {
+    text-align: center;
+    padding: 8px;
+    background: #fafafa;
+    border-bottom: 1px solid #ddd;
+    font-weight: bold;
+    height: 40px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 13px;
+    color: #333;
+    position: sticky;
+    top: 0;
+    z-index: 10;
+    flex-shrink: 0;
+}
+
+.week-day-header.today {
+    background: #e9f5ff;
+    color: #007bff;
+    font-weight: 600;
+}
+
+.time-slots {
+    flex: 1;
+    position: relative;
+    min-height: 960px;
+    overflow: visible;
+}
+
+.time-slot {
+    height: 40px;
+    border-bottom: 1px solid #f0f0f0;
+    position: relative;
+    z-index: 1;
+}
+
+.time-slot:last-child {
+    border-bottom: none;
+}
+
+/* ===== Vista Diaria ===== */
+.day-view-container {
+    display: flex;
+    height: 100%;
+    background: #fff;
+    overflow: auto;
+}
+
+.day-view {
+    flex: 1;
+    display: flex;
+    min-width: 100%;
+    flex-direction: row;
+}
+
+.day-events {
+    flex: 1;
+    position: relative;
+    min-height: 960px;
+}
+
+.hour-slot {
+    height: 40px;
+    border-bottom: 1px solid #f0f0f0;
+}
+
+.hour-slot:last-child {
+    border-bottom: none;
+}
+
+/* ===== Eventos ===== */
+.events,
+.day-events,
+.time-slots {
+    position: relative;
+}
+
+.event-item {
+    background: #007bff;
+    color: #fff;
+    padding: 2px 4px;
+    border-radius: 4px;
+    margin: 2px 0;
+    cursor: move;
+    position: relative;
+    font-size: 12px;
+    overflow: hidden;
+    box-sizing: border-box;
+    min-height: 20px;
+    border-left: 3px solid #007bff;
+    transition: all 0.2s ease;
+    z-index: 2;
+}
+
+.event-item:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+/* Evento siendo arrastrado - SIN INCLINACIÓN */
+.event-item.dragging {
+    opacity: 0.7;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+}
+
+/* Colores por tipo - Se generan dinámicamente desde el JSON */
+.event-item.consulta {
+    background: #007bff !important;
+    color: #ffffff !important;
+    border-left: 3px solid #007bff;
+}
+
+.event-item.consulta.dragging {
+    background: #007bff !important;
+    opacity: 0.7;
+}
+
+.event-item.turno {
+    background: #28a745 !important;
+    color: #ffffff !important;
+    border-left: 3px solid #28a745;
+}
+
+.event-item.turno.dragging {
+    background: #28a745 !important;
+    opacity: 0.7;
+}
+
+.event-item.reunion {
+    background: #ffc107 !important;
+    color: #000000 !important;
+    border-left: 3px solid #ffc107;
+}
+
+.event-item.reunion.dragging {
+    background: #ffc107 !important;
+    opacity: 0.7;
+}
+
+.event-item.laboratorio {
+    background: #17a2b8 !important;
+    color: #ffffff !important;
+    border-left: 3px solid #17a2b8;
+}
+
+.event-item.laboratorio.dragging {
+    background: #17a2b8 !important;
+    opacity: 0.7;
+}
+
+.event-item.psicologia {
+    background: #6f42c1 !important;
+    color: #ffffff !important;
+    border-left: 3px solid #6f42c1;
+}
+
+.event-item.psicologia.dragging {
+    background: #6f42c1 !important;
+    opacity: 0.7;
+}
+
+.event-item.nutricion {
+    background: #20c997 !important;
+    color: #ffffff !important;
+    border-left: 3px solid #20c997;
+}
+
+.event-item.nutricion.dragging {
+    background: #20c997 !important;
+    opacity: 0.7;
+}
+
+.event-item.congreso {
+    background: #fd7e14 !important;
+    color: #ffffff !important;
+    border-left: 3px solid #fd7e14;
+}
+
+.event-item.congreso.dragging {
+    background: #fd7e14 !important;
+    opacity: 0.7;
+}
+
+.event-item.capacitacion {
+    background: #6610f2 !important;
+    color: #ffffff !important;
+    border-left: 3px solid #6610f2;
+}
+
+.event-item.capacitacion.dragging {
+    background: #6610f2 !important;
+    opacity: 0.7;
+}
+
+.event-item.urgencia {
+    background: #dc3545 !important;
+    color: #ffffff !important;
+    border-left: 3px solid #dc3545;
+}
+
+.event-item.urgencia.dragging {
+    background: #dc3545 !important;
+    opacity: 0.7;
+}
+
+.event-item.kinesiologia {
+    background: #198754 !important;
+    color: #ffffff !important;
+    border-left: 3px solid #198754;
+}
+
+.event-item.kinesiologia.dragging {
+    background: #198754 !important;
+    opacity: 0.7;
+}
+
+/* Contenido de eventos */
+.event-time {
+    font-size: 10px;
+    opacity: 0.9;
+    margin-bottom: 1px;
+    font-weight: 600;
+}
+
+.event-title {
+    font-size: 11px;
+    font-weight: 500;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+/* En vista mensual, los eventos son más compactos */
+.month-view .event-item {
+    padding: 1px 3px;
+    margin: 1px 0;
+    min-height: 16px;
+}
+
+.month-view .event-time {
+    font-size: 9px;
+    margin-bottom: 0;
+}
+
+.month-view .event-title {
+    font-size: 10px;
+}
+
+/* Handle para resize */
+.resize-handle {
+    width: 100%;
+    height: 6px;
+    background: rgba(0, 0, 0, 0.2);
+    border-radius: 0 0 4px 4px;
+    cursor: ns-resize;
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    opacity: 0;
+    transition: opacity 0.2s ease;
+}
+
+.event-item:hover .resize-handle {
+    opacity: 1;
+}
+
+.resize-handle:hover {
+    background: rgba(0, 0, 0, 0.3);
+}
+
+/* En vista mensual, el resize es horizontal */
+.month-view .resize-handle {
+    cursor: ew-resize;
+    width: 6px;
+    height: 100%;
+    right: 0;
+    left: auto;
+    top: 0;
+    border-radius: 0 4px 4px 0;
+}
+
+/* ===== Slots Disponibles ===== */
+.available-slot {
+    transition: opacity 0.2s ease;
+    pointer-events: none;
+    z-index: 1;
+}
+
+.available-slot:hover {
+    opacity: 0.8;
+}
+
+/* Estilos para diferentes profesionales */
+.available-slot[style*="e3f2fd"] {
+    background-color: #e3f2fd !important;
+    border-color: #bbdefb !important;
+}
+
+.available-slot[style*="e8f5e8"] {
+    background-color: #e8f5e8 !important;
+    border-color: #c8e6c9 !important;
+}
+
+.available-slot[style*="fff3e0"] {
+    background-color: #fff3e0 !important;
+    border-color: #ffe0b2 !important;
+}
+
+.available-slot[style*="f3e5f5"] {
+    background-color: #f3e5f5 !important;
+    border-color: #e1bee7 !important;
+}
+
+/* Mejora visual para los slots disponibles en vista semanal */
+.week-view .available-slot {
+    left: 2px !important;
+    right: 2px !important;
+}
+
+/* Mejora visual para los slots disponibles en vista diaria */
+.day-view .available-slot {
+    left: 4px !important;
+    right: 4px !important;
+}
+
+/* ===== Mensajes de Error ===== */
+.creation-error {
+    position: fixed;
+    top: 20px;
+    left: 50%;
+    transform: translateX(-50%);
+    background: #ff4444;
+    color: white;
+    padding: 12px 20px;
+    border-radius: 4px;
+    z-index: 10000;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
+    max-width: 400px;
+    text-align: center;
+    animation: slideDown 0.3s ease-out;
+}
+
+@keyframes slideDown {
+    from {
+        transform: translateX(-50%) translateY(-20px);
+        opacity: 0;
+    }
+
+    to {
+        transform: translateX(-50%) translateY(0);
+        opacity: 1;
+    }
+}
+
+/* ===== Menú Contextual ===== */
+.context-menu {
+    position: fixed;
+    background: #fff;
+    border: 1px solid #ccc;
+    box-shadow: 0px 2px 8px rgba(0, 0, 0, 0.15);
+    padding: 8px;
+    z-index: 9999;
+    min-width: 160px;
+    border-radius: 4px;
+    animation: fadeIn 0.15s ease-out;
+}
+
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(-5px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.context-menu input,
+.context-menu select {
+    width: 100%;
+    margin-bottom: 8px;
+    padding: 6px;
+    font-size: 13px;
+    border: 1px solid #ddd;
+    border-radius: 3px;
+    box-sizing: border-box;
+    transition: border-color 0.2s ease;
+}
+
+.context-menu input:focus,
+.context-menu select:focus {
+    outline: none;
+    border-color: #007bff;
+    box-shadow: 0 0 0 2px rgba(0, 123, 255, 0.25);
+}
+
+.context-menu div {
+    padding: 6px 8px;
+    cursor: pointer;
+    border-radius: 3px;
+    transition: background-color 0.2s ease;
+    margin-bottom: 2px;
+}
+
+.context-menu div:last-child {
+    margin-bottom: 0;
+}
+
+.context-menu div:hover {
+    background: #f0f0f0;
+}
+
+.context-menu .event-type-description {
+    font-size: 11px;
+    color: #666;
+    padding: 4px 8px;
+    margin-bottom: 8px;
+    background: #f8f9fa;
+    border-radius: 3px;
+    border-left: 2px solid #007bff;
+    cursor: default;
+}
+
+.context-menu .event-type-description:hover {
+    background: #f8f9fa;
+}
+
+/* Preview durante drag */
+.drag-preview {
+    position: fixed;
+    background: rgba(0, 123, 255, 0.9);
+    color: white;
+    padding: 6px 10px;
+    border-radius: 4px;
+    font-size: 12px;
+    pointer-events: none;
+    z-index: 10000;
+    max-width: 200px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    border: 1px solid #007bff;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+    backdrop-filter: blur(2px);
+}
+
+/* Estados de loading */
+.event-item.loading {
+    opacity: 0.6;
+    cursor: wait;
+}
+
+.event-item.loading::after {
+    content: "";
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: 12px;
+    height: 12px;
+    margin: -6px 0 0 -6px;
+    border: 2px solid transparent;
+    border-top: 2px solid currentColor;
+    border-radius: 50%;
+    animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+    0% {
+        transform: rotate(0deg);
+    }
+
+    100% {
+        transform: rotate(360deg);
+    }
+}
+
+/* Scrollbar personalizado */
+.calendar-view::-webkit-scrollbar {
+    width: 8px;
+    height: 8px;
+}
+
+.calendar-view::-webkit-scrollbar-track {
+    background: #f1f1f1;
+    border-radius: 4px;
+}
+
+.calendar-view::-webkit-scrollbar-thumb {
+    background: #c1c1c1;
+    border-radius: 4px;
+}
+
+.calendar-view::-webkit-scrollbar-thumb:hover {
+    background: #a8a8a8;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+    .calendar-header {
+        flex-wrap: wrap;
+        gap: 8px;
+        padding: 8px;
+    }
+
+    .view-controls {
+        order: 1;
+    }
+
+    .today-btn {
+        order: 2;
+    }
+
+    .navigation-controls {
+        order: 3;
+        flex-basis: 100%;
+        margin-top: 8px;
+        max-width: none;
+    }
+
+    .navigation-controls h2 {
+        font-size: 16px;
+        min-width: auto;
+        flex: 1;
+    }
+
+    /* MANTENER LAYOUT HORIZONTAL EN MÓVIL CON SCROLL */
+    .week-view {
+        flex-direction: row;
+        min-width: 800px;
+    }
+
+    .time-column {
+        width: 50px;
+        position: sticky;
+        left: 0;
+        z-index: 20;
+    }
+
+    .time-label {
+        font-size: 11px;
+        padding-right: 4px;
+    }
+
+    .week-day-column {
+        min-width: 100px;
+    }
+
+    .week-day-header {
+        height: 35px;
+        font-size: 12px;
+    }
+
+    /* VISTA DÍA EN MÓVIL */
+    .day-view {
+        min-width: 100%;
+    }
+
+    .context-menu {
+        min-width: 140px;
+        font-size: 13px;
+    }
+}
+
+@media (max-width: 480px) {
+
+    .view-controls button,
+    .navigation-controls button,
+    .today-btn {
+        padding: 4px 8px;
+        font-size: 12px;
+        height: 28px;
+    }
+
+    .navigation-controls button {
+        width: 28px;
+        height: 28px;
+    }
+
+    .navigation-controls h2 {
+        font-size: 14px;
+    }
+
+    .calendar-day {
+        min-height: 80px;
+    }
+
+    .event-item {
+        font-size: 10px;
+        padding: 1px 3px;
+    }
+
+    .event-time {
+        font-size: 9px;
+    }
+
+    .event-title {
+        font-size: 10px;
+    }
+}
+
+/* Modo de alta contraste para accesibilidad */
+@media (prefers-contrast: high) {
+    .calendar-header {
+        background: #000;
+        color: #fff;
+        border-bottom-color: #fff;
+    }
+
+    .view-controls button,
+    .navigation-controls button,
+    .today-btn {
+        background: #000;
+        color: #fff;
+        border-color: #fff;
+    }
+
+    .view-controls button.active {
+        background: #fff;
+        color: #000;
+    }
+
+    .calendar-day {
+        border-color: #fff;
+    }
+
+    .calendar-day.empty {
+        background: #333;
+    }
+
+    .event-item {
+        border: 1px solid #fff;
+    }
+}
+
+/* Modo reducido de movimiento para accesibilidad */
+@media (prefers-reduced-motion: reduce) {
+
+    .event-item,
+    .view-controls button,
+    .navigation-controls button,
+    .today-btn,
+    .context-menu {
+        transition: none;
+        animation: none;
+    }
+
+    .event-item:hover {
+        transform: none;
+    }
+
+    .event-item.dragging {
+        transform: none;
+    }
+}
+
+/* Mejora para el área de drop en vista semanal */
+.week-day-column {
+    position: relative;
+}
+
+.week-day-column.drag-over {
+    background: rgba(0, 123, 255, 0.1) !important;
+}
+
+/* Indicador visual para drop en header */
+.week-day-header.drop-target {
+    background: #e3f2fd;
+    border: 2px dashed #007bff;
+}
+
+/* Loading Overlay */
+.calendar-loading-overlay {
+    position: absolute;
+    inset: 0;
+    background: rgba(255, 255, 255, 0.8);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 50;
+    border-radius: 8px;
+}
+
+.calendar-loading-content {
+    text-align: center;
+    background: white;
+    padding: 2rem;
+    border-radius: 8px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+    border: 1px solid #e5e7eb;
+}
+
+.calendar-loading-spinner {
+    width: 2rem;
+    height: 2rem;
+    border: 3px solid #e5e7eb;
+    border-top: 3px solid #3b82f6;
+    border-radius: 50%;
+    animation: calendar-spin 1s linear infinite;
+    margin: 0 auto 1rem;
+}
+
+.calendar-loading-text {
+    color: #374151;
+    font-size: 0.875rem;
+    margin: 0;
+}
+
+@keyframes calendar-spin {
+    0% {
+        transform: rotate(0deg);
+    }
+
+    100% {
+        transform: rotate(360deg);
+    }
+}
+
+/* Asegurar que el contenedor principal tenga posición relativa */
+.simple-calendar {
+    position: relative;
+    min-height: 400px;
+}
+
+/* Estilos para eventos confirmados */
+.event-item.confirmed {
+    border-left: 3px solid #4CAF50 !important;
+    background: linear-gradient(90deg, var(--event-color) 0%, var(--event-color) 95%, #4CAF50 95%) !important;
+}
+
+.confirmed-badge {
+    position: absolute;
+    top: 2px;
+    right: 2px;
+    background: #4CAF50;
+    color: white;
+    border-radius: 50%;
+    width: 16px;
+    height: 16px;
+    font-size: 10px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    line-height: 1;
+}
+
+/* Estilos para eventos de solo lectura */
+.event-item.read-only {
+    opacity: 0.8;
+    cursor: not-allowed;
+}
+
+.event-item.read-only .resize-handle {
+    display: none;
+}
+
+/* CORRECCIÓN ESPECÍFICA PARA ESTRUCTURA HORARIOS */
+.time-column {
+    display: flex !important;
+    flex-direction: column !important;
+}
+
+.week-view {
+    display: flex !important;
+    flex-direction: row !important;
+}
+
+.day-view {
+    display: flex !important;
+    flex-direction: row !important;
+}
+
+/* Asegurar que los elementos se muestren correctamente */
+.time-label {
+    display: flex !important;
+}
+
+.week-day-header {
+    display: flex !important;
+}
+
+.time-slot {
+    display: block !important;
+}
+
+.hour-slot {
+    display: block !important;
+}
+
+/* ===== CORRECCIÓN SOMBRA EN DESKTOP ===== */
+
+/* Eliminar el efecto de hover/sombra permanente en desktop */
+.week-day-column::before {
+    display: none !important;
+}
+
+/* Solo mostrar efectos de hover en elementos específicos, no en columnas completas */
+.week-day-column:hover {
+    background: transparent !important;
+}
+
+/* Efecto de drag-over solo cuando se está arrastrando */
+.week-day-column.drag-over {
+    background: rgba(0, 123, 255, 0.1) !important;
+}
+
+/* Remover cualquier estilo permanente que cause el sombreado */
+.week-day-column {
+    background: transparent !important;
+}
+
+/* Asegurar que los time-slots no tengan fondos permanentes */
+.time-slots {
+    background: transparent !important;
+}
+
+/* ===== CORRECCIÓN MENÚ CONTEXTUAL MÓVIL ===== */
+.mobile-context-menu {
+    position: fixed !important;
+    top: 50% !important;
+    left: 50% !important;
+    transform: translate(-50%, -50%) !important;
+    width: 90vw;
+    max-width: 300px;
+    max-height: 80vh;
+    overflow-y: auto;
+    z-index: 10000;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+    border: 2px solid #007bff;
+}
+
+/* Botones más grandes para touch */
+.mobile-context-menu div {
+    padding: 12px 16px;
+    font-size: 16px;
+    min-height: 44px;
+    /* Tamaño mínimo recomendado para touch */
+}
+
+.mobile-context-menu input,
+.mobile-context-menu select {
+    font-size: 16px;
+    /* Evitar zoom en iOS */
+    padding: 12px;
+    min-height: 44px;
+    width: 100%;
+    box-sizing: border-box;
+}
+
+/* Overlay para cerrar al tocar fuera - SOLO MÓVIL */
+.context-menu-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(0, 0, 0, 0.5);
+    z-index: 9998;
+    display: none;
+}
+
+/* Mostrar overlay solo en móvil */
+@media (max-width: 768px) {
+    .context-menu-overlay.active {
+        display: block;
+    }
+
+    .mobile-context-menu {
+        z-index: 9999;
+    }
+}
+
+/* Prevenir zoom en inputs en iOS */
+@media (max-width: 768px) {
+
+    .context-menu input,
+    .context-menu select {
+        font-size: 16px;
+    }
+}
+
+/* Estados de hover que también funcionen en touch */
+.calendar-day:not(.empty):hover,
+.week-day-column:hover,
+.day-events:hover {
+    background-color: rgba(0, 123, 255, 0.05);
+}
