@@ -14,6 +14,7 @@ const AnalyticDataPage = lazy(() => import("./components/dashboard/sections/Anal
 import { Schedule } from './components/dashboard/sections/schedule/Schedule';
 import { Appointment } from './components/dashboard/sections/appointment/Appointment';
 import { ProfessionalAppointments } from './components/dashboard/sections/appointment/ProfessionalAppointments';
+import { ProtectedRoute } from './components/auth/ProtectedRoute';
 
 const queryClient = new QueryClient();
 
@@ -23,61 +24,66 @@ function App() {
       <BrowserRouter>
         <Routes>
           <Route path="/login" element={<Login />} />
-          <Route path="/mis-pacientes" element={
-            <MainLayout>
-              <MisPacientes />
-            </MainLayout>
-          } />
-          <Route path="/usuarios" element={
-            <MainLayout>
-              <Usuarios />
-            </MainLayout>
-          } />
-          <Route path="/mis-pacientes/:id/historia-clinica" element={
-            <MainLayout>
-              <ClinicalHistoryPage />
-            </MainLayout>
-          } />
-          <Route path="/mis-pacientes/:id/antropometria" element={
-            <MainLayout>
-              <AnthropometricsPage />
-            </MainLayout>
-          } />
-          <Route path="/mis-pacientes/:id/analitica" element={
-            <MainLayout>
-              <AnalyticDataPage />
-            </MainLayout>
-          } />
-          <Route path="/users" element={
-            <MainLayout>
-              <Usuarios /> {/* Assuming 'Users' refers to the 'Usuarios' component */}
-            </MainLayout>
-          } />
-          <Route path="/mediciones" element={
-            <MainLayout>
-              <Mediciones />
-            </MainLayout>
-          } />
-          <Route path="/admin/schedules" element={
-            <MainLayout>
-              <Schedule />
-            </MainLayout>
-          } />
-          <Route path="/admin/appointment" element={
-            <MainLayout>
-              <Appointment />
-            </MainLayout>
-          } />
-          <Route path="/admin/appointment-profesional" element={
-            <MainLayout>
-              <ProfessionalAppointments />
-            </MainLayout>
-          } />
-          <Route path="/" element={
-            <MainLayout>
-              <Specializations />
-            </MainLayout>
-          } />
+
+          {/* Locked Routes */}
+          <Route element={<ProtectedRoute />}>
+            <Route path="/mis-pacientes" element={
+              <MainLayout>
+                <MisPacientes />
+              </MainLayout>
+            } />
+            <Route path="/usuarios" element={
+              <MainLayout>
+                <Usuarios />
+              </MainLayout>
+            } />
+            <Route path="/mis-pacientes/:id/historia-clinica" element={
+              <MainLayout>
+                <ClinicalHistoryPage />
+              </MainLayout>
+            } />
+            <Route path="/mis-pacientes/:id/antropometria" element={
+              <MainLayout>
+                <AnthropometricsPage />
+              </MainLayout>
+            } />
+            <Route path="/mis-pacientes/:id/analitica" element={
+              <MainLayout>
+                <AnalyticDataPage />
+              </MainLayout>
+            } />
+            <Route path="/users" element={
+              <MainLayout>
+                <Usuarios /> {/* Assuming 'Users' refers to the 'Usuarios' component */}
+              </MainLayout>
+            } />
+            <Route path="/mediciones" element={
+              <MainLayout>
+                <Mediciones />
+              </MainLayout>
+            } />
+            <Route path="/admin/schedules" element={
+              <MainLayout>
+                <Schedule />
+              </MainLayout>
+            } />
+            <Route path="/admin/appointment" element={
+              <MainLayout>
+                <Appointment />
+              </MainLayout>
+            } />
+            <Route path="/admin/appointment-profesional" element={
+              <MainLayout>
+                <ProfessionalAppointments />
+              </MainLayout>
+            } />
+            <Route path="/" element={
+              <MainLayout>
+                <Specializations />
+              </MainLayout>
+            } />
+          </Route>
+
           {/* Fallback to root if unknown route, or create a 404 */}
           <Route path="*" element={<Navigate to="/" replace />} />
         </Routes>
