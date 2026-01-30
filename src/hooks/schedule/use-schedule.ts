@@ -16,7 +16,7 @@ export const useCreateSchedule = () => {
     return useMutation({
         mutationFn: (schedules: CreateScheduleRequest[]) =>
             scheduleService.createSchedule(schedules),
-        onSuccess: (data, variables) => {
+        onSuccess: (_data, variables) => {
             const professionalId = variables[0]?.professionalId;
             if (professionalId) {
                 queryClient.invalidateQueries({

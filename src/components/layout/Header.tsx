@@ -1,4 +1,4 @@
-import { Menu, Bell, HelpCircle, Gift, User as UserIcon, Settings } from "lucide-react";
+import { Menu, User as UserIcon, Settings } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useSidebar } from "@/components/ui/sidebar";
 import { useUser } from "@/hooks/user/use-user";

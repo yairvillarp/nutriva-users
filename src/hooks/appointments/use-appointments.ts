@@ -45,7 +45,7 @@ export const useCreateAppointment = () => {
         mutationFn: (appointment: CalEvent) => {
             return appointmentService.createAppointment(appointment);
         },
-        onSuccess: (data, variables) => {
+        onSuccess: (_data, variables) => {
             const professionalId = variables.professionalId;
             if (professionalId) {
                 queryClient.invalidateQueries({
@@ -74,7 +74,7 @@ export const useUpdateAppointment = () => {
         mutationFn: ({ id, updates }: { id: string; updates: Partial<CalEvent> }) => {
             return appointmentService.updateAppointment(id, updates);
         },
-        onSuccess: (data, variables) => {
+        onSuccess: (_data, variables) => {
             if (variables.updates.professionalId) {
                 queryClient.invalidateQueries({
                     queryKey: ["appointments", "professional", variables.updates.professionalId]
