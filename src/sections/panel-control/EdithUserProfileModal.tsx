@@ -157,9 +157,9 @@ export function EdithUserProfileModal({ isOpen, onClose, userId }: EdithUserProf
         setUploading(true);
         try {
             const response = await filesService.uploadImage(file);
-            if (response && response.Location) {
-                setAvatarUrl(response.Location);
-                setFormData(prev => ({ ...prev, avatar: response.Location }));
+            if (response && response.length > 0 && response[0].Location) {
+                setAvatarUrl(response[0].Location);
+                setFormData(prev => ({ ...prev, avatar: response[0].Location }));
             }
         } catch (error) {
             console.error("Error al subir la imagen:", error);
