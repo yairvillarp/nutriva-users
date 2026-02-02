@@ -8,7 +8,7 @@ import {
     useGetAppointmentsByProfessional
 } from "@/hooks/appointments/use-appointments";
 import { useGetCurrentUser, useUpdateUserPhone } from "@/hooks/user/users";
-import { Settings, Loader2, Phone, Edit3, Check, X } from "lucide-react";
+import { Settings, Loader2, Phone, Mail, Edit3, Check, X } from "lucide-react";
 import { useState, useCallback, useEffect } from "react";
 import AsyncSelect from 'react-select/async';
 import type { CalEvent, EventTypeConfig, AvailableSlot } from "../googleCalendar/SimpleCalendar";
@@ -182,6 +182,7 @@ export function Appointment() {
             timeZone: event.start.timeZone || defaultTimeZone,
             eventType: event.eventType,
             status: (event as any).status || 'scheduled',
+            email: event.email,
             patientId: loggedUserId.toString(),
             professionalId: selectedProfessional?.value?.toString()
         };
@@ -453,6 +454,26 @@ export function Appointment() {
                             Este número será usado para confirmaciones y recordatorios de tus turnos.
                         </p>
                     </div>
+
+                    <div className="border-t pt-4 mt-2">
+                        <div className="flex items-center justify-between">
+                            <div className="flex items-center gap-2">
+                                <Mail className="h-5 w-5 text-gray-600" />
+                                <span className="text-sm font-medium text-gray-700">Email de contacto</span>
+                            </div>
+
+                            {!isLoadingUser && (
+                                <div className="flex items-center gap-3">
+                                    <span className="text-sm text-gray-700">
+                                        {currentUser?.email || 'No registrado'}
+                                    </span>
+                                </div>
+                            )}
+                        </div>
+                        <p className="text-xs text-gray-500 mt-1 ml-7">
+                            Este email será usado para enviar la información del turno.
+                        </p>
+                    </div>
                 </CardContent>
             </Card>
 
@@ -564,6 +585,7 @@ export function Appointment() {
                                     restrictEventResizing={true}
                                     isLoading={isProcessing}
                                     currentUserId={loggedUserId?.toString()}
+                                    defaultEmail={currentUser?.email}
                                     userRole="patient"
                                     allowConfirmedEdits={false}
                                 />

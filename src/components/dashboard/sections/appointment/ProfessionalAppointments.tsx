@@ -182,6 +182,7 @@ export function ProfessionalAppointments() {
                 startDateTime: event.start.dateTime,
                 endDateTime: event.end.dateTime,
                 eventType: event.eventType,
+                email: event.email,
                 status: (event as any).status || 'scheduled'
             };
 
@@ -329,6 +330,7 @@ export function ProfessionalAppointments() {
                                 restrictEventResizing={false}
                                 isLoading={isLoading}
                                 currentUserId={loggedUserId?.toString()}
+                                defaultEmail={userLogged?.email}
                                 userRole="professional"
                                 allowConfirmedEdits={true}
                             />

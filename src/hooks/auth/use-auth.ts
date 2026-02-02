@@ -20,7 +20,7 @@ export const useAuth = () => {
             // const userRoles = data.roles || [];
 
             // Updated logic based on simplicity requested
-            navigate("/", { replace: true });
+            navigate("/home", { replace: true });
         },
         onError: (error) => {
             toast.error("Error al iniciar sesión", {
