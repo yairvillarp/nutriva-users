@@ -24,7 +24,8 @@ import { useAuth } from "@/hooks/auth/use-auth";
 import {
     Briefcase,
     Calendar,
-    Clock
+    Clock,
+    Home
 } from "lucide-react";
 import {
     Sidebar as SidebarComponent,
@@ -120,6 +121,14 @@ export function Sidebar({ activeSection: _propActiveSection, setActiveSection: p
 
     const menuItems: MenuItem[] = [
         {
+            id: "/home",
+            title: "Home",
+            icon: <Home className="h-4 w-4" />,
+            rol: [],
+            isSingle: true,
+            level: 1
+        },
+        {
             id: "/usuarios",
             title: "Usuarios",
             icon: <User className="h-4 w-4" />,
@@ -131,6 +140,14 @@ export function Sidebar({ activeSection: _propActiveSection, setActiveSection: p
             id: "/mis-pacientes",
             title: "Mis pacientes",
             icon: <User className="h-4 w-4" />,
+            rol: [],
+            isSingle: true,
+            level: 1
+        },
+        {
+            id: "/especialidades",
+            title: "Especialidades",
+            icon: <Briefcase className="h-4 w-4" />,
             rol: [],
             isSingle: true,
             level: 1

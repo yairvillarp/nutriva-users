@@ -14,6 +14,7 @@ export interface CalEvent {
     professionalId?: string;
     patientId?: string;
     phone?: string;
+    email?: string;
     isConfirmed?: boolean;
     status?: string;
     patient?: {

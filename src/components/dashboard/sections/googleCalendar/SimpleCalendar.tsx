@@ -42,6 +42,8 @@ export type CalEvent = {
     isConfirmed?: boolean;
     patientId?: string;
     professionalId?: string;
+    phone?: string;
+    email?: string;
     patient?: {
         id: string;
         first_name: string;
@@ -83,6 +85,7 @@ type Props = {
     restrictEventResizing?: boolean;
     isLoading?: boolean;
     currentUserId?: string;
+    defaultEmail?: string;
     userRole?: 'patient' | 'professional' | 'admin';
     allowConfirmedEdits?: boolean;
 };
@@ -115,6 +118,7 @@ const SimpleCalendar: React.FC<Props> = ({
     restrictEventResizing = false,
     isLoading = false,
     currentUserId,
+    defaultEmail = '',
     userRole = 'patient',
     allowConfirmedEdits = false
 }) => {
@@ -135,6 +139,11 @@ const SimpleCalendar: React.FC<Props> = ({
     const [newType, setNewType] = useState(eventTypeIds[0]);
     const [isLoadingEvent, setIsLoadingEvent] = useState<string | null>(null);
     const [creationError, setCreationError] = useState<string | null>(null);
+    const [newEmail, setNewEmail] = useState(defaultEmail);
+
+    useEffect(() => {
+        setNewEmail(defaultEmail);
+    }, [defaultEmail]);
 
     // Estado para touch en móvil
     const [isMobile, setIsMobile] = useState(false);
@@ -812,6 +821,8 @@ const SimpleCalendar: React.FC<Props> = ({
             start: { dateTime: formatToPostgresDate(start) },
             end: { dateTime: formatToPostgresDate(end) },
             eventType: eventTypeId,
+            patientId: currentUserId,
+            email: newEmail || defaultEmail
         };
         const updatedEvents = [...localEvents, newEvent];
         updateEvents(updatedEvents);
@@ -1188,6 +1199,19 @@ const SimpleCalendar: React.FC<Props> = ({
                         {eventTypes.map((eventType) => (<option key={eventType.id} value={eventType.id}>{eventType.name}</option>))}
                     </select>
                     <div style={{ fontSize: '12px', color: '#666', marginBottom: '8px', padding: '4px' }}>{getEventTypeConfig(newType).description}</div>
+                    <input
+                        type="email"
+                        value={newEmail}
+                        onChange={(e) => setNewEmail(e.target.value)}
+                        placeholder="Email de contacto"
+                        style={{
+                            width: '100%',
+                            padding: '8px',
+                            marginBottom: '8px',
+                            border: '1px solid #ddd',
+                            borderRadius: '4px'
+                        }}
+                    />
                     <div style={{ padding: "8px", cursor: "pointer" }} onClick={() => { handleCreateEvent(contextMenu.date, newType); setContextMenu(null); }}>
                         ➕ Agregar {isLoadingEvent === `temp-${Date.now()}` ? "..." : ""}
                     </div>
@@ -1199,6 +1223,21 @@ const SimpleCalendar: React.FC<Props> = ({
                         <div style={{ fontSize: '11px', color: '#4CAF50', marginBottom: '8px', padding: '4px', background: '#f0f9f0', borderRadius: '3px', borderLeft: '2px solid #4CAF50' }}>✓ Turno confirmado</div>
                     )}
                     <input type="text" value={eventMenu.event.summary} onChange={(e) => handleEventUpdate(eventMenu.event.id, { summary: e.target.value })} disabled={eventMenu.event.isConfirmed || eventMenu.event.status === 'confirmed'} />
+                    <input
+                        type="email"
+                        value={eventMenu.event.email || ''}
+                        onChange={(e) => handleEventUpdate(eventMenu.event.id, { email: e.target.value })}
+                        placeholder="Email de contacto"
+                        style={{
+                            width: '100%',
+                            padding: '8px',
+                            marginBottom: '4px',
+                            marginTop: '4px',
+                            border: '1px solid #ddd',
+                            borderRadius: '4px'
+                        }}
+                        disabled={eventMenu.event.isConfirmed || eventMenu.event.status === 'confirmed'}
+                    />
                     <select value={eventMenu.event.eventType} onChange={(e) => handleEventUpdate(eventMenu.event.id, { eventType: e.target.value })} disabled={eventMenu.event.isConfirmed || eventMenu.event.status === 'confirmed'}>
                         {eventTypes.map((eventType) => (<option key={eventType.id} value={eventType.id}>{eventType.name}</option>))}
                     </select>

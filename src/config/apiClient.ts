@@ -27,6 +27,13 @@ apiClient.interceptors.response.use(
     (response) => response,
     (error) => {
         if (error.response) {
+            if (error.response.status === 401) {
+                localStorage.removeItem("token");
+                localStorage.removeItem("data");
+                if (!window.location.pathname.includes("/login")) {
+                    window.location.href = "/login";
+                }
+            }
             const message =
                 error.response.data?.message || "Error en la petición";
             return Promise.reject(new Error(message));

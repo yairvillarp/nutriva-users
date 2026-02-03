@@ -15,6 +15,7 @@ import { Schedule } from './components/dashboard/sections/schedule/Schedule';
 import { Appointment } from './components/dashboard/sections/appointment/Appointment';
 import { ProfessionalAppointments } from './components/dashboard/sections/appointment/ProfessionalAppointments';
 import { ProtectedRoute } from './components/auth/ProtectedRoute';
+import { Home } from './pages/Home/Home';
 
 const queryClient = new QueryClient();
 
@@ -77,7 +78,13 @@ function App() {
                 <ProfessionalAppointments />
               </MainLayout>
             } />
-            <Route path="/" element={
+            <Route path="/home" element={
+              <MainLayout>
+                <Home />
+              </MainLayout>
+            } />
+            <Route path="/" element={<Navigate to="/home" replace />} />
+            <Route path="/especialidades" element={
               <MainLayout>
                 <Specializations />
               </MainLayout>
@@ -85,7 +92,7 @@ function App() {
           </Route>
 
           {/* Fallback to root if unknown route, or create a 404 */}
-          <Route path="*" element={<Navigate to="/" replace />} />
+          <Route path="*" element={<Navigate to="/home" replace />} />
         </Routes>
         <Toaster />
       </BrowserRouter>
