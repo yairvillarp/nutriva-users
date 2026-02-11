@@ -125,3 +125,22 @@
     @apply bg-background text-foreground;
   }
 }
+
+.day-has-data {
+  position: relative;
+  font-weight: 800 !important;
+  color: hsl(var(--primary)) !important;
+}
+
+.day-has-data::after {
+  content: "";
+  position: absolute;
+  bottom: 4px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 5px;
+  height: 5px;
+  border-radius: 50%;
+  background-color: hsl(var(--primary));
+  box-shadow: 0 0 5px hsl(var(--primary) / 0.5);
+}

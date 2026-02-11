@@ -16,6 +16,7 @@ import { Appointment } from './components/dashboard/sections/appointment/Appoint
 import { ProfessionalAppointments } from './components/dashboard/sections/appointment/ProfessionalAppointments';
 import { ProtectedRoute } from './components/auth/ProtectedRoute';
 import { Home } from './pages/Home/Home';
+import { MealPlanPage } from './components/dashboard/sections/MealPlan/MealPlanPage';
 
 const queryClient = new QueryClient();
 
@@ -51,6 +52,11 @@ function App() {
             <Route path="/mis-pacientes/:id/analitica" element={
               <MainLayout>
                 <AnalyticDataPage />
+              </MainLayout>
+            } />
+            <Route path="/mis-pacientes/:id/plan-alimentacion" element={
+              <MainLayout>
+                <MealPlanPage />
               </MainLayout>
             } />
             <Route path="/users" element={

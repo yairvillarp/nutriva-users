@@ -11,10 +11,10 @@ export const Home = () => {
 
                 <div className="relative z-10 flex flex-col items-center">
                     <div
-                        className="mb-8 p-1 bg-gradient-to-br from-emerald-500 to-green-600 rounded-2xl shadow-lg ring-4 ring-white transition-transform hover:scale-105 duration-300"
+                        className="mb-8 p-1 rounded-2xl shadow-lg ring-4 ring-white transition-transform hover:scale-105 duration-300"
                     >
                         <img
-                            src="/logo-admin.webp"
+                            src="/apple-touch-icon_2.jpg"
                             alt="Nutriva Logo"
                             className="w-32 h-32 object-contain rounded-xl bg-white"
                         />
