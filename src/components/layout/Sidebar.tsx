@@ -144,14 +144,14 @@ export function Sidebar({ activeSection: _propActiveSection, setActiveSection: p
             isSingle: true,
             level: 1
         },
-        {
-            id: "/especialidades",
-            title: "Especialidades",
-            icon: <Briefcase className="h-4 w-4" />,
-            rol: [],
-            isSingle: true,
-            level: 1
-        },
+        // {
+        //     id: "/especialidades",
+        //     title: "Especialidades",
+        //     icon: <Briefcase className="h-4 w-4" />,
+        //     rol: [],
+        //     isSingle: true,
+        //     level: 1
+        // },
         // {
         //     id: "/",
         //     title: "Informaciones",

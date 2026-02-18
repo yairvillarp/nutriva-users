@@ -18,7 +18,8 @@ interface PatientListProps {
     search: string;
     onSearchChange: (value: string) => void;
     onPageChange: (page: number) => void;
-    onPatientClick?: (patient: Patient) => void;
+    onHistoryClick?: (patient: Patient) => void;
+    onPlanClick?: (patient: Patient) => void;
     gridCols?: string;
 }
 
@@ -28,7 +29,8 @@ export function PatientList({
     search,
     onSearchChange,
     onPageChange,
-    onPatientClick,
+    onHistoryClick,
+    onPlanClick,
     gridCols = "grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4"
 }: PatientListProps) {
     return (
@@ -58,7 +60,8 @@ export function PatientList({
                     <PatientCard
                         key={patient.id}
                         patient={patient}
-                        onClick={() => onPatientClick?.(patient)}
+                        onHistoryClick={() => onHistoryClick?.(patient)}
+                        onPlanClick={() => onPlanClick?.(patient)}
                     />
                 ))}
             </div>

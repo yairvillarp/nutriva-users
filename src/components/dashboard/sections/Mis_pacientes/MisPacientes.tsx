@@ -3,6 +3,7 @@ import { useMyPatients } from "@/hooks/patients/use-my-patients";
 import { useNavigate } from "react-router-dom";
 import { PatientList } from "./PatientList";
 import { PatientFilters } from "./PatientFilters";
+import type { Patient } from "@/types/patients";
 
 export function MisPacientes() {
     const {
@@ -78,7 +79,8 @@ export function MisPacientes() {
                             pagination={pagination}
                             search={search}
                             onSearchChange={setSearch}
-                            onPatientClick={(patient) => navigate(`/mis-pacientes/${patient.id}/historia-clinica`)}
+                            onHistoryClick={(patient: Patient) => navigate(`/mis-pacientes/${patient.id}/historia-clinica`)}
+                            onPlanClick={(patient: Patient) => navigate(`/mis-pacientes/${patient.id}/plan-alimentacion`)}
                             onPageChange={(p) => {
                                 setPage(p);
                                 window.scrollTo({ top: 0, behavior: 'smooth' });

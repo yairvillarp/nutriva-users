@@ -3,13 +3,15 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { User, Mail, Phone, Calendar, ChevronRight, Activity } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
 
 interface PatientCardProps {
     patient: Patient;
-    onClick?: () => void;
+    onHistoryClick?: (id: number) => void;
+    onPlanClick?: (id: number) => void;
 }
 
-export function PatientCard({ patient, onClick }: PatientCardProps) {
+export function PatientCard({ patient, onHistoryClick, onPlanClick }: PatientCardProps) {
     // Determine the type label color
     const getTypeLabel = (type: string) => {
         const types: Record<string, { label: string, color: string }> = {
@@ -25,8 +27,7 @@ export function PatientCard({ patient, onClick }: PatientCardProps) {
 
     return (
         <Card
-            className="group hover:shadow-xl transition-all duration-300 cursor-pointer border-none bg-white overflow-hidden ring-1 ring-gray-100"
-            onClick={onClick}
+            className="group hover:shadow-xl transition-all duration-300 border-none bg-white overflow-hidden ring-1 ring-gray-100"
         >
             <CardContent className="p-0">
                 <div className="flex items-stretch h-full">
@@ -77,18 +78,31 @@ export function PatientCard({ patient, onClick }: PatientCardProps) {
                             </div>
                         </div>
 
-                        <div className="mt-5 pt-4 border-t border-gray-50 flex items-center justify-between">
-                            <div className="flex -space-x-2">
-                                <div className="h-7 w-7 rounded-full border-2 border-white bg-blue-50 flex items-center justify-center">
-                                    <Activity className="h-3.5 w-3.5 text-blue-500" />
-                                </div>
-                                <div className="h-7 w-7 rounded-full border-2 border-white bg-rose-50 flex items-center justify-center">
-                                    <Calendar className="h-3.5 w-3.5 text-rose-500" />
-                                </div>
-                            </div>
-                            <span className="text-[10px] font-bold text-gray-300 uppercase italic">
-                                Ver historia clínica
-                            </span>
+                        <div className="mt-5 pt-4 border-t border-gray-50 flex items-center justify-between gap-2">
+                            <Button
+                                variant="ghost"
+                                size="sm"
+                                className="text-[10px] font-bold text-gray-400 hover:text-primary uppercase flex items-center gap-1.5 px-2 h-8"
+                                onClick={(e) => {
+                                    e.stopPropagation();
+                                    onHistoryClick?.(patient.id);
+                                }}
+                            >
+                                <Activity className="h-3.5 w-3.5" />
+                                Historia clínica
+                            </Button>
+                            <Button
+                                variant="ghost"
+                                size="sm"
+                                className="text-[10px] font-bold text-gray-400 hover:text-primary uppercase flex items-center gap-1.5 px-2 h-8"
+                                onClick={(e) => {
+                                    e.stopPropagation();
+                                    onPlanClick?.(patient.id);
+                                }}
+                            >
+                                <Calendar className="h-3.5 w-3.5" />
+                                Plan alimentación
+                            </Button>
                         </div>
                     </div>
                 </div>
