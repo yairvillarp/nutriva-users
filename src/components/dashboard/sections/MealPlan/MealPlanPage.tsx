@@ -3,7 +3,7 @@ import { useParams, useNavigate } from "react-router-dom";
 import { mealPlanService, type MealPlanSummary } from "@/services/patients/mealPlanService";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Calendar as CalendarIcon, ChevronLeft, Target, CalendarDays, Activity, PieChart, ChevronDown, ChevronRight, Apple, Zap, Loader2, Trash2 } from "lucide-react";
+import { Calendar as CalendarIcon, ChevronLeft, Target, CalendarDays, Activity, PieChart, ChevronDown, ChevronRight, Apple, Zap, Loader2, Trash2, Copy } from "lucide-react";
 import { FoodSearchModal } from "./modals/FoodSearchModal";
 import { RecipeSearchModal } from "./modals/RecipeSearchModal";
 import { format } from "date-fns";
@@ -27,6 +27,37 @@ export function MealPlanPage() {
     const [expandedItems, setExpandedItems] = useState<Record<string, boolean>>({});
     const [foodModal, setFoodModal] = useState<{ isOpen: boolean, mealKey: string, mealTitle: string }>({ isOpen: false, mealKey: "", mealTitle: "" });
     const [recipeModal, setRecipeModal] = useState<{ isOpen: boolean, mealKey: string, mealTitle: string }>({ isOpen: false, mealKey: "", mealTitle: "" });
+    const [isCopying, setIsCopying] = useState(false);
+
+    const handleCopyPlan = async (destinationDate: Date) => {
+        if (!id || !date) return;
+        
+        const fromDateStr = format(date, "yyyy-MM-dd");
+        const toDateStr = format(destinationDate, "yyyy-MM-dd");
+
+        const confirmCopy = window.confirm(`¿Está seguro que desea copiar estos datos al día ${format(destinationDate, "dd/MM/yyyy")}?`);
+        if (!confirmCopy) return;
+
+        setIsUpdating(true);
+        try {
+            await mealPlanService.copyPlan(id, fromDateStr, toDateStr);
+            // After copying, navigate to the target date or stay? 
+            // The request says "haciendo clic sobre el, se muestre un calendario... eligiendo un día, se copien"
+            // Usually users expect to see the result. Let's move to that date.
+            setDate(destinationDate);
+            const [summaryData, dates] = await Promise.all([
+                mealPlanService.getSummary(id, toDateStr),
+                mealPlanService.getDatesWithData(id)
+            ]);
+            setSummary(summaryData);
+            setDatesWithData(dates);
+        } catch (error) {
+            console.error("Error copying plan:", error);
+        } finally {
+            setIsUpdating(false);
+            setIsCopying(false);
+        }
+    };
 
     useEffect(() => {
         const fetchDates = async () => {
@@ -75,24 +106,7 @@ export function MealPlanPage() {
         );
     }
 
-    const targetKcal = summary?.userObjective?.calorias || 0;
-    const currentKcal = summary?.dailyIntake?.algo?.kcal?.total || 0;
-    const kcalPercent = targetKcal > 0 ? Math.min((currentKcal / targetKcal) * 100, 100) : 0;
 
-    const targetProte = summary?.userObjective?.rango?.prote || 20;
-    const targetCarb = summary?.userObjective?.rango?.carb || 50;
-    const targetFat = summary?.userObjective?.rango?.fats || 30;
-
-    const currentProte = summary?.dailyIntake?.algo?.proteinas?.total || 0;
-    const currentCarb = summary?.dailyIntake?.algo?.carbs?.total || 0;
-    const currentFat = summary?.dailyIntake?.algo?.grasas?.total || 0;
-
-    const meals = [
-        { title: "Desayuno", key: 'breakfast', data: summary?.dailyIntake?.breakfastEnriched || [] },
-        { title: "Almuerzo", key: 'lunch', data: summary?.dailyIntake?.lunchEnriched || [] },
-        { title: "Merienda", key: 'snack', data: summary?.dailyIntake?.snackEnriched || [] },
-        { title: "Cena", key: 'dinner', data: summary?.dailyIntake?.dinnerEnriched || [] },
-    ];
 
     const calculateMealTotals = (mealData: any[]) => {
         return mealData.reduce((acc, item) => {
@@ -112,6 +126,36 @@ export function MealPlanPage() {
             return acc;
         }, { kcal: 0, cho: 0, pro: 0, lip: 0 });
     };
+
+    const meals = [
+        { title: "Desayuno", key: 'breakfast', data: summary?.dailyIntake?.breakfastEnriched || [] },
+        { title: "Almuerzo", key: 'lunch', data: summary?.dailyIntake?.lunchEnriched || [] },
+        { title: "Merienda", key: 'snack', data: summary?.dailyIntake?.snackEnriched || [] },
+        { title: "Cena", key: 'dinner', data: summary?.dailyIntake?.dinnerEnriched || [] },
+    ];
+
+    const dailyTotals = meals.reduce((acc, meal) => {
+        const mealTotals = calculateMealTotals(meal.data);
+        acc.kcal += mealTotals.kcal;
+        acc.cho += mealTotals.cho;
+        acc.pro += mealTotals.pro;
+        acc.lip += mealTotals.lip;
+        return acc;
+    }, { kcal: 0, cho: 0, pro: 0, lip: 0 });
+
+    const dailyObj = summary?.dailyIntake?.objective;
+    const targetKcal = (typeof dailyObj === 'object' && dailyObj !== null ? dailyObj.calorias : dailyObj) || summary?.userObjective?.calorias || 0;
+    const currentKcal = dailyTotals.kcal;
+    const kcalPercent = targetKcal > 0 ? Math.min((currentKcal / targetKcal) * 100, 100) : 0;
+
+    const targetProte = summary?.userObjective?.rango?.prote || 20;
+    const targetCarb = summary?.userObjective?.rango?.carb || 50;
+    const targetFat = summary?.userObjective?.rango?.fats || 30;
+
+    const currentProte = summary?.dailyIntake?.algo?.proteinas?.total || 0;
+    const currentCarb = summary?.dailyIntake?.algo?.carbs?.total || 0;
+    const currentFat = summary?.dailyIntake?.algo?.grasas?.total || 0;
+
 
     const handleAddFood = async (food: any, grams: number) => {
         if (!id) return;
@@ -248,42 +292,101 @@ export function MealPlanPage() {
 
             <div className="flex flex-col sm:flex-row items-center justify-between gap-4">
                 <h2 className="text-xl font-bold text-gray-900">Resumen Nutricional</h2>
-                <div className="relative w-full sm:w-auto">
-                    <Popover>
-                        <PopoverTrigger asChild>
-                            <Button
-                                variant="outline"
-                                className={cn(
-                                    "w-full sm:w-[280px] justify-start text-left font-bold bg-white border-2 border-primary/20 hover:border-primary/40 hover:bg-primary/5 hover:text-primary transition-all shadow-sm rounded-xl h-12 px-4 group",
-                                    !date && "text-muted-foreground"
-                                )}
-                            >
-                                <div className="p-2 rounded-lg bg-primary/10 mr-3 group-hover:bg-primary/20 transition-colors">
-                                    <CalendarIcon className="h-4 w-4 text-primary" />
+                <div className="flex flex-col gap-2 w-full sm:w-auto">
+                    {/* Date Selector */}
+                    <div className="relative w-full sm:w-auto">
+                        <Popover>
+                            <PopoverTrigger asChild>
+                                <Button
+                                    variant="outline"
+                                    className={cn(
+                                        "w-full sm:w-[320px] justify-start text-left font-bold bg-white border-2 border-primary/20 hover:border-primary/40 hover:bg-primary/5 hover:text-primary transition-all shadow-sm rounded-xl h-12 px-4 group",
+                                        !date && "text-muted-foreground"
+                                    )}
+                                >
+                                    <div className="p-2 rounded-lg bg-primary/10 mr-3 group-hover:bg-primary/20 transition-colors">
+                                        <CalendarIcon className="h-4 w-4 text-primary" />
+                                    </div>
+                                    {date ? format(date, "PPPP", { locale: es }) : <span>Seleccionar fecha</span>}
+                                </Button>
+                            </PopoverTrigger>
+                            <PopoverContent className="w-auto p-0 border-none shadow-2xl rounded-2xl overflow-hidden" align="end">
+                                <Calendar
+                                    mode="single"
+                                    selected={date}
+                                    onSelect={async (newDate) => {
+                                        if (newDate) {
+                                            const dateStr = format(newDate, "yyyy-MM-dd");
+                                            
+                                            if (datesWithData.includes(dateStr)) {
+                                                setDate(newDate);
+                                            } else {
+                                                const confirmGenerate = window.confirm("Desea generar un plan para este día");
+                                                if (confirmGenerate && id) {
+                                                    setDate(newDate);
+                                                    setIsUpdating(true);
+                                                    try {
+                                                        await mealPlanService.regeneratePlan(id, dateStr);
+                                                        // Refresh data
+                                                        const [summaryData, dates] = await Promise.all([
+                                                            mealPlanService.getSummary(id, dateStr),
+                                                            mealPlanService.getDatesWithData(id)
+                                                        ]);
+                                                        setSummary(summaryData);
+                                                        setDatesWithData(dates);
+                                                    } catch (error) {
+                                                        console.error("Error generating plan:", error);
+                                                    } finally {
+                                                        setIsUpdating(false);
+                                                    }
+                                                }
+                                            }
+                                        }
+                                    }}
+                                    initialFocus
+                                    modifiers={{
+                                        hasData: (day) => {
+                                            const dayStr = format(day, "yyyy-MM-dd");
+                                            return datesWithData.includes(dayStr);
+                                        }
+                                    }}
+                                    modifiersClassNames={{
+                                        hasData: "day-has-data"
+                                    }}
+                                />
+                            </PopoverContent>
+                        </Popover>
+                    </div>
+
+                    {/* Copy Plan Button */}
+                    <div className="relative w-full sm:w-auto">
+                        <Popover open={isCopying} onOpenChange={setIsCopying}>
+                            <PopoverTrigger asChild>
+                                <Button 
+                                    variant="outline" 
+                                    className="w-full sm:w-[320px] justify-start bg-white border-2 border-primary/20 hover:border-primary/40 text-primary font-bold rounded-xl h-12 gap-2 px-4"
+                                    disabled={isUpdating}
+                                >
+                                    <div className="p-2 rounded-lg bg-primary/10 mr-1">
+                                        <Copy className="h-4 w-4 text-primary" />
+                                    </div>
+                                    <span className="truncate">Copiar plan de alimentación para el día</span>
+                                </Button>
+                            </PopoverTrigger>
+                            <PopoverContent className="w-auto p-0 border-none shadow-2xl rounded-2xl overflow-hidden" align="end">
+                                <div className="p-4 border-b border-gray-100 bg-gray-50/50">
+                                    <p className="text-xs font-bold text-gray-500 uppercase tracking-wider">Seleccionar fecha destino</p>
                                 </div>
-                                {date ? format(date, "PPPP", { locale: es }) : <span>Seleccionar fecha</span>}
-                            </Button>
-                        </PopoverTrigger>
-                        <PopoverContent className="w-auto p-0 border-none shadow-2xl rounded-2xl overflow-hidden" align="end">
-                            <Calendar
-                                mode="single"
-                                selected={date}
-                                onSelect={(newDate) => {
-                                    if (newDate) setDate(newDate);
-                                }}
-                                initialFocus
-                                modifiers={{
-                                    hasData: (day) => {
-                                        const dayStr = format(day, "yyyy-MM-dd");
-                                        return datesWithData.includes(dayStr);
-                                    }
-                                }}
-                                modifiersClassNames={{
-                                    hasData: "day-has-data"
-                                }}
-                            />
-                        </PopoverContent>
-                    </Popover>
+                                <Calendar
+                                    mode="single"
+                                    onSelect={(newDate) => {
+                                        if (newDate) handleCopyPlan(newDate);
+                                    }}
+                                    initialFocus
+                                />
+                            </PopoverContent>
+                        </Popover>
+                    </div>
                 </div>
             </div>
 
@@ -308,6 +411,23 @@ export function MealPlanPage() {
                             </div>
                         </div>
                         <Progress value={kcalPercent} className="h-4 bg-gray-100 [&>div]:bg-primary" />
+                        
+                        <div className="flex gap-4 pt-4 border-t border-gray-50">
+                            <div className="flex-1 text-center">
+                                <p className="text-[10px] uppercase font-bold text-gray-400 tracking-wider mb-1">Carbs</p>
+                                <p className="text-sm font-black text-blue-600">{Math.round(dailyTotals.cho)}g</p>
+                            </div>
+                            <div className="w-px h-8 bg-gray-100" />
+                            <div className="flex-1 text-center">
+                                <p className="text-[10px] uppercase font-bold text-gray-400 tracking-wider mb-1">Prote</p>
+                                <p className="text-sm font-black text-rose-600">{Math.round(dailyTotals.pro)}g</p>
+                            </div>
+                            <div className="w-px h-8 bg-gray-100" />
+                            <div className="flex-1 text-center">
+                                <p className="text-[10px] uppercase font-bold text-gray-400 tracking-wider mb-1">Grasas</p>
+                                <p className="text-sm font-black text-amber-600">{Math.round(dailyTotals.lip)}g</p>
+                            </div>
+                        </div>
                     </CardContent>
                 </Card>
 
@@ -400,7 +520,8 @@ export function MealPlanPage() {
                                                 <Button 
                                                     size="sm" 
                                                     variant="outline" 
-                                                    className="h-8 text-[10px] font-bold uppercase tracking-wider border-primary/20 text-primary hover:bg-primary/5"
+                                                    disabled={!summary?.dailyIntake || isUpdating}
+                                                    className="h-8 text-[10px] font-bold uppercase tracking-wider border-primary/20 text-primary hover:bg-primary/5 disabled:opacity-50 disabled:cursor-not-allowed"
                                                     onClick={() => setFoodModal({ isOpen: true, mealKey: meal.key, mealTitle: meal.title })}
                                                 >
                                                     + Alimento
@@ -408,7 +529,8 @@ export function MealPlanPage() {
                                                 <Button 
                                                     size="sm" 
                                                     variant="outline" 
-                                                    className="h-8 text-[10px] font-bold uppercase tracking-wider border-purple-200 text-purple-600 hover:bg-purple-50"
+                                                    disabled={!summary?.dailyIntake || isUpdating}
+                                                    className="h-8 text-[10px] font-bold uppercase tracking-wider border-purple-200 text-purple-600 hover:bg-purple-50 disabled:opacity-50 disabled:cursor-not-allowed"
                                                     onClick={() => setRecipeModal({ isOpen: true, mealKey: meal.key, mealTitle: meal.title })}
                                                 >
                                                     + Receta

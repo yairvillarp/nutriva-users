@@ -22,41 +22,43 @@ function Calendar({
             classNames={{
                 months: "flex flex-col sm:flex-row space-y-4 sm:space-x-4 sm:space-y-0",
                 month: "space-y-4",
-                caption: "flex justify-center pt-1 relative items-center mb-2",
+                month_caption: "flex justify-center pt-1 relative items-center mb-2",
                 caption_label: "text-sm font-bold text-slate-900",
                 nav: "space-x-1 flex items-center",
-                nav_button: cn(
+                button_previous: cn(
                     buttonVariants({ variant: "outline" }),
-                    "h-7 w-7 bg-transparent p-0 opacity-50 hover:opacity-100 border-slate-200 transition-all hover:bg-slate-50"
+                    "h-7 w-7 bg-transparent p-0 opacity-50 hover:opacity-100 border-slate-200 transition-all hover:bg-slate-50 absolute left-1"
                 ),
-                nav_button_previous: "absolute left-1",
-                nav_button_next: "absolute right-1",
-                table: "w-full border-collapse space-y-1",
-                head_row: "flex mb-1",
-                head_cell:
+                button_next: cn(
+                    buttonVariants({ variant: "outline" }),
+                    "h-7 w-7 bg-transparent p-0 opacity-50 hover:opacity-100 border-slate-200 transition-all hover:bg-slate-50 absolute right-1"
+                ),
+                month_grid: "w-full border-collapse",
+                weekdays: "flex mb-1",
+                weekday:
                     "text-slate-400 rounded-md flex-1 font-medium text-[0.7rem] uppercase tracking-tighter text-center py-2 px-0.5",
-                row: "flex w-full mt-1 justify-between",
-                cell: cn(
+                week: "flex w-full mt-1",
+                day: cn(
                     "relative p-0 text-center text-sm focus-within:relative focus-within:z-20 [&:has([aria-selected])]:bg-slate-50",
                     props.mode === "range"
                         ? "[&:has(>.day-range-end)]:rounded-r-md [&:has(>.day-range-start)]:rounded-l-md"
                         : "[&:has([aria-selected])]:rounded-md"
                 ),
-                day: cn(
+                day_button: cn(
                     buttonVariants({ variant: "ghost" }),
                     "h-9 w-9 p-0 font-normal aria-selected:opacity-100 hover:bg-primary/10 hover:text-primary transition-colors"
                 ),
-                day_range_start: "day-range-start",
-                day_range_end: "day-range-end",
-                day_selected:
+                range_start: "day-range-start",
+                range_end: "day-range-end",
+                selected:
                     "bg-primary text-white hover:bg-primary hover:text-white focus:bg-primary focus:text-white font-bold shadow-sm",
-                day_today: "bg-slate-100 text-slate-900 font-bold",
-                day_outside:
+                today: "bg-slate-100 text-slate-900 font-bold",
+                outside:
                     "day-outside text-slate-400 opacity-30 aria-selected:bg-slate-100/50 aria-selected:text-slate-400 aria-selected:opacity-30",
-                day_disabled: "text-slate-400 opacity-50",
-                day_range_middle:
+                disabled: "text-slate-400 opacity-50",
+                range_middle:
                     "aria-selected:bg-slate-50 aria-selected:text-slate-900",
-                day_hidden: "invisible",
+                hidden: "invisible",
                 ...classNames,
             }}
             components={{

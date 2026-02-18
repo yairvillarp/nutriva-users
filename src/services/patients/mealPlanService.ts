@@ -45,5 +45,17 @@ export const mealPlanService = {
     deleteRecipe: async (data: { type: string; recipeId: number | string; date?: string; userId?: string | number }) => {
         const response = await apiClient.post('/api/daily/deleterecipe', data);
         return response.data.data;
+    },
+    regeneratePlan: async (userId: string | number, date: string) => {
+        const response = await apiClient.get('/api/dashboard/regenerate-plan', {
+            params: { userId, date }
+        });
+        return response.data.data;
+    },
+    copyPlan: async (userId: string | number, fromDate: string, toDate: string) => {
+        const response = await apiClient.get('/api/dashboard/copy-plan', {
+            params: { userId, fromDate, toDate }
+        });
+        return response.data.data;
     }
 };
