@@ -18,12 +18,15 @@ import { ProtectedRoute } from './components/auth/ProtectedRoute';
 import { Home } from './pages/Home/Home';
 import { MealPlanPage } from './components/dashboard/sections/MealPlan/MealPlanPage';
 
+import { AuthHandler } from './components/auth/AuthHandler';
+
 const queryClient = new QueryClient();
 
 function App() {
   return (
     <QueryClientProvider client={queryClient}>
       <BrowserRouter>
+        <AuthHandler />
         <Routes>
           <Route path="/login" element={<Login />} />
 
