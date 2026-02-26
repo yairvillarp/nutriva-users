@@ -5,7 +5,6 @@ import { Input } from "@/components/ui/input";
 import { useAuth } from "@/hooks/auth/use-auth";
 import { useLocation, useNavigate } from "react-router-dom";
 import { toast } from "sonner";
-import { authService } from "@/services/auth/services";
 
 export function Login() {
   const [showPassword, setShowPassword] = useState(false);
@@ -21,35 +20,10 @@ export function Login() {
     const params = new URLSearchParams(location.search);
     let token = params.get("token") || params.get("accessToken");
 
-    // 2. Check for access token in URL Hash (Google Implicit Flow)
-    // Google returns: #access_token=...&token_type=Bearer&expires_in=...
-    if (!token && location.hash) {
-      const hashParams = new URLSearchParams(location.hash.substring(1)); // remove #
-      const googleAccessToken = hashParams.get("access_token");
-
-      if (googleAccessToken) {
-        // We have the Google Access Token, now exchange it with backend
-        authService.googleLogin(googleAccessToken)
-          .then(data => {
-            localStorage.setItem("token", data.accessToken);
-            localStorage.setItem("data", JSON.stringify(data));
-            toast.success("Inicio de sesión exitoso con Google");
-            navigate("/", { replace: true });
-          })
-          .catch(err => {
-            toast.error("Error al iniciar sesión con Google", {
-              description: err.message
-            });
-          });
-        return; // Stop processing
-      }
-    }
-
-    // Legacy support logic
     if (token) {
       localStorage.setItem("token", token);
-      toast.success("Inicio de sesión exitoso con Google");
-      navigate("/", { replace: true });
+      toast.success("Inicio de sesión exitoso");
+      navigate("/home", { replace: true });
     }
   }, [location, navigate]);
 
@@ -70,7 +44,7 @@ export function Login() {
       return;
     }
 
-    const redirect_uri = window.location.origin + "/login";
+    const redirect_uri = "https://users.nutriva.io/home";
     const scope = "email profile openid";
     const response_type = "token"; // Implicit flow to get access_token directly
 
