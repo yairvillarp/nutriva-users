@@ -18,6 +18,8 @@ import { ProtectedRoute } from './components/auth/ProtectedRoute';
 import { Home } from './pages/Home/Home';
 import { MealPlanPage } from './components/dashboard/sections/MealPlan/MealPlanPage';
 
+const Revenue = lazy(() => import("./pages/Professional/Revenue/Revenue")); // Added lazy import
+
 import { AuthHandler } from './components/auth/AuthHandler';
 
 const queryClient = new QueryClient();
@@ -60,6 +62,11 @@ function App() {
             <Route path="/mis-pacientes/:id/plan-alimentacion" element={
               <MainLayout>
                 <MealPlanPage />
+              </MainLayout>
+            } />
+            <Route path="/recaudacion" element={
+              <MainLayout>
+                <Revenue />
               </MainLayout>
             } />
             <Route path="/users" element={
