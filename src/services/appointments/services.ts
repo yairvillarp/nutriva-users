@@ -100,4 +100,17 @@ export const appointmentService = {
         );
         return response.data;
     },
+
+    getRevenueStats: async (professionalId?: string, startDate?: string, endDate?: string): Promise<any> => {
+        const params: any = {};
+        if (professionalId) params.professionalId = professionalId;
+        if (startDate) params.startDate = startDate;
+        if (endDate) params.endDate = endDate;
+
+        const response = await apiClient.get<any>(
+            `/api/appointments/revenue`,
+            { params }
+        );
+        return response.data;
+    },
 };

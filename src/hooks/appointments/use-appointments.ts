@@ -124,3 +124,11 @@ export const useGetAppointmentStats = (professionalId?: string, startDate?: stri
         enabled: true,
     });
 };
+
+export const useGetRevenueStats = (professionalId?: string, startDate?: string, endDate?: string) => {
+    return useQuery({
+        queryKey: ["appointments", "revenue", professionalId, startDate, endDate],
+        queryFn: () => appointmentService.getRevenueStats(professionalId, startDate, endDate),
+        enabled: true,
+    });
+};

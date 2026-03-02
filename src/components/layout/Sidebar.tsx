@@ -144,6 +144,14 @@ export function Sidebar({ activeSection: _propActiveSection, setActiveSection: p
             isSingle: true,
             level: 1
         },
+        {
+            id: "/recaudacion",
+            title: "Recaudación",
+            icon: <Briefcase className="h-4 w-4" />,
+            rol: ["USER:PROFECIONAL"], // O el rol específico si es necesario, pero parece que es para todos los profesionales
+            isSingle: true,
+            level: 1
+        },
         // {
         //     id: "/especialidades",
         //     title: "Especialidades",
