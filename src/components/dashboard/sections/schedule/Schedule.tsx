@@ -148,7 +148,12 @@ export function Schedule() {
             const existingSchedules = scheduleData.data;
 
             // Crear una copia del estado por defecto
-            const newWeeklySchedule = { ...defaultWeeklySchedule };
+            const newWeeklySchedule = JSON.parse(JSON.stringify(defaultWeeklySchedule));
+            
+            // Deshabilitar todos los días para que solo se habiliten los que vienen de la API
+            Object.keys(newWeeklySchedule).forEach(day => {
+                newWeeklySchedule[day as keyof WeeklySchedule].enabled = false;
+            });
 
             const schedulesByDay: { [key: number]: any[] } = {};
             existingSchedules.forEach(schedule => {
@@ -174,9 +179,9 @@ export function Schedule() {
                 }
             });
 
-            // Los días que no tienen datos en la API mantienen su estado por defecto
+            // Los días que no tienen datos en la API quedan deshabilitados
             setWeeklySchedule(newWeeklySchedule);
-            lastSavedScheduleRef.current = newWeeklySchedule;
+            lastSavedScheduleRef.current = JSON.parse(JSON.stringify(newWeeklySchedule));
         }
     }, [scheduleData]);
 

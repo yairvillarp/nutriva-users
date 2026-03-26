@@ -78,30 +78,30 @@ export function PatientCard({ patient, onHistoryClick, onPlanClick }: PatientCar
                             </div>
                         </div>
 
-                        <div className="mt-5 pt-4 border-t border-gray-50 flex items-center justify-between gap-2">
+                        <div className="mt-5 pt-4 border-t border-gray-50 flex flex-wrap items-center justify-between gap-2">
                             <Button
                                 variant="ghost"
                                 size="sm"
-                                className="text-[10px] font-bold text-gray-400 hover:text-primary uppercase flex items-center gap-1.5 px-2 h-8"
+                                className="text-[10px] font-bold text-gray-400 hover:text-primary uppercase flex items-center justify-center gap-1.5 px-2 h-8 flex-1 min-w-[130px]"
                                 onClick={(e) => {
                                     e.stopPropagation();
                                     onHistoryClick?.(patient.id);
                                 }}
                             >
-                                <Activity className="h-3.5 w-3.5" />
-                                Historia clínica
+                                <Activity className="h-3.5 w-3.5 shrink-0" />
+                                <span className="truncate">Historia clínica</span>
                             </Button>
                             <Button
                                 variant="ghost"
                                 size="sm"
-                                className="text-[10px] font-bold text-gray-400 hover:text-primary uppercase flex items-center gap-1.5 px-2 h-8"
+                                className="text-[10px] font-bold text-gray-400 hover:text-primary uppercase flex items-center justify-center gap-1.5 px-2 h-8 flex-1 min-w-[130px]"
                                 onClick={(e) => {
                                     e.stopPropagation();
                                     onPlanClick?.(patient.id);
                                 }}
                             >
-                                <Calendar className="h-3.5 w-3.5" />
-                                Plan alimentación
+                                <Calendar className="h-3.5 w-3.5 shrink-0" />
+                                <span className="truncate">Plan alimentación</span>
                             </Button>
                         </div>
                     </div>

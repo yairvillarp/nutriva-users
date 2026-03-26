@@ -6,6 +6,7 @@ import { Button } from "@/components/ui/button";
 import { Calendar as CalendarIcon, ChevronLeft, Target, CalendarDays, Activity, PieChart, ChevronDown, ChevronRight, Apple, Zap, Loader2, Trash2, Copy } from "lucide-react";
 import { FoodSearchModal } from "./modals/FoodSearchModal";
 import { RecipeSearchModal } from "./modals/RecipeSearchModal";
+import { PremadeMealSearchModal } from "./modals/PremadeMealSearchModal";
 import { format } from "date-fns";
 import { es } from "date-fns/locale";
 import { Progress } from "@/components/ui/progress";
@@ -27,6 +28,7 @@ export function MealPlanPage() {
     const [expandedItems, setExpandedItems] = useState<Record<string, boolean>>({});
     const [foodModal, setFoodModal] = useState<{ isOpen: boolean, mealKey: string, mealTitle: string }>({ isOpen: false, mealKey: "", mealTitle: "" });
     const [recipeModal, setRecipeModal] = useState<{ isOpen: boolean, mealKey: string, mealTitle: string }>({ isOpen: false, mealKey: "", mealTitle: "" });
+    const [premadeModal, setPremadeModal] = useState<{ isOpen: boolean, mealKey: string, mealTitle: string }>({ isOpen: false, mealKey: "", mealTitle: "" });
     const [isCopying, setIsCopying] = useState(false);
 
     const handleCopyPlan = async (destinationDate: Date) => {
@@ -198,6 +200,40 @@ export function MealPlanPage() {
             setSummary(summaryData);
         } catch (error) {
             console.error("Error adding recipe:", error);
+        } finally {
+            setIsUpdating(false);
+        }
+    };
+
+    const handleAddPremade = async (premadeMeal: any, unitsMultiplier: number) => {
+        if (!id) return;
+        setIsUpdating(true);
+        try {
+            if (premadeMeal.premadefoods && premadeMeal.premadefoods.length > 0) {
+                for (const pf of premadeMeal.premadefoods) {
+                    const foodDetail = pf.food || {};
+                    await mealPlanService.addFood({
+                        type: premadeModal.mealKey,
+                        product: { 
+                            ...foodDetail,
+                            foodId: pf.foodId,
+                            food: foodDetail,
+                            grams: (parseFloat(pf.grams) || 0) * unitsMultiplier,
+                            units: (parseFloat(pf.units) || 0) * unitsMultiplier,
+                            unitsName: pf.unitsName || foodDetail.unitsName || 'g',
+                            isFromPremade: true,
+                            premadeName: premadeMeal.name
+                        },
+                        userId: id,
+                        date: format(date, "yyyy-MM-dd")
+                    });
+                }
+                
+                const summaryData = await mealPlanService.getSummary(id, format(date, "yyyy-MM-dd"));
+                setSummary(summaryData);
+            }
+        } catch (error) {
+            console.error("Error adding premade meal:", error);
         } finally {
             setIsUpdating(false);
         }
@@ -535,6 +571,15 @@ export function MealPlanPage() {
                                                 >
                                                     + Receta
                                                 </Button>
+                                                <Button 
+                                                    size="sm" 
+                                                    variant="outline" 
+                                                    disabled={!summary?.dailyIntake || isUpdating}
+                                                    className="h-8 text-[10px] font-bold uppercase tracking-wider border-orange-200 text-orange-600 hover:bg-orange-50 disabled:opacity-50 disabled:cursor-not-allowed"
+                                                    onClick={() => setPremadeModal({ isOpen: true, mealKey: meal.key, mealTitle: meal.title })}
+                                                >
+                                                    + Comida Pre-hecha
+                                                </Button>
                                             </div>
                                         </div>
                                     </div>
@@ -566,7 +611,7 @@ export function MealPlanPage() {
                                                     )}>
                                                         {(() => {
                                                             const getMacroValue = (macroKey: 'cho' | 'protein' | 'lip' | 'kcals') => {
-                                                                const val = item[macroKey] ?? foodOrRecipe[macroKey] ?? 0;
+                                                                const val = item[macroKey] ?? item.plan?.[macroKey] ?? foodOrRecipe[macroKey] ?? 0;
                                                                 const baseValue = parseFloat(val);
                                                                 if (isPremade) {
                                                                     return baseValue * (item.units || 1);
@@ -606,6 +651,13 @@ export function MealPlanPage() {
                                                                                         {isPremade ? item.recipeDetail.name : (item.foodDetail?.name || item.name || item.food?.name)}
                                                                                     </h4>
                                                                                     {expanded ? <ChevronDown className="h-4 w-4 text-gray-400" /> : <ChevronRight className="h-4 w-4 text-gray-400" />}
+                                                                                    
+                                                                                    {item.isFromPremade && (
+                                                                                        <span className="bg-orange-100 text-orange-700 px-2 py-0.5 rounded-full text-[10px] font-black uppercase tracking-wider shadow-sm truncate max-w-[150px]">
+                                                                                            {item.premadeName || 'Comida Pre-hecha'}
+                                                                                        </span>
+                                                                                    )}
+                                                                                    
                                                                                     {isChecked ? (
                                                                                         <span className="bg-emerald-500 text-white px-2 py-0.5 rounded-full text-[10px] font-black uppercase tracking-wider flex items-center gap-1 shadow-sm">
                                                                                             <Zap className="h-3 w-3" /> Contabilizado
@@ -756,6 +808,12 @@ export function MealPlanPage() {
                 onAdd={handleAddRecipe} 
                 mealTitle={recipeModal.mealTitle} 
                 patientId={id}
+            />
+            <PremadeMealSearchModal 
+                isOpen={premadeModal.isOpen} 
+                onClose={() => setPremadeModal({ ...premadeModal, isOpen: false })} 
+                onAdd={handleAddPremade} 
+                mealTitle={premadeModal.mealTitle} 
             />
         </div>
     );
