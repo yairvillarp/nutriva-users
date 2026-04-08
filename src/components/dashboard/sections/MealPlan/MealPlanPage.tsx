@@ -3,7 +3,7 @@ import { useParams, useNavigate } from "react-router-dom";
 import { mealPlanService, type MealPlanSummary } from "@/services/patients/mealPlanService";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Calendar as CalendarIcon, ChevronLeft, Target, CalendarDays, Activity, PieChart, ChevronDown, ChevronRight, Apple, Zap, Loader2, Trash2, Copy, MessageSquare, Edit2, Plus, RefreshCw } from "lucide-react";
+import { Calendar as CalendarIcon, ChevronLeft, Target, CalendarDays, Activity, PieChart, ChevronDown, ChevronRight, Apple, Zap, Loader2, Trash2, Copy, MessageSquare, Edit2, RefreshCw } from "lucide-react";
 import { DailyCommentModal } from "./modals/DailyCommentModal";
 import { FoodSearchModal } from "./modals/FoodSearchModal";
 import { RecipeSearchModal } from "./modals/RecipeSearchModal";
