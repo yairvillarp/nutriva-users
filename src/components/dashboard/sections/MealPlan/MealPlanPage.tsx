@@ -3,7 +3,8 @@ import { useParams, useNavigate } from "react-router-dom";
 import { mealPlanService, type MealPlanSummary } from "@/services/patients/mealPlanService";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Calendar as CalendarIcon, ChevronLeft, Target, CalendarDays, Activity, PieChart, ChevronDown, ChevronRight, Apple, Zap, Loader2, Trash2, Copy } from "lucide-react";
+import { Calendar as CalendarIcon, ChevronLeft, Target, CalendarDays, Activity, PieChart, ChevronDown, ChevronRight, Apple, Zap, Loader2, Trash2, Copy, MessageSquare, Edit2, Plus, RefreshCw } from "lucide-react";
+import { DailyCommentModal } from "./modals/DailyCommentModal";
 import { FoodSearchModal } from "./modals/FoodSearchModal";
 import { RecipeSearchModal } from "./modals/RecipeSearchModal";
 import { PremadeMealSearchModal } from "./modals/PremadeMealSearchModal";
@@ -29,6 +30,7 @@ export function MealPlanPage() {
     const [foodModal, setFoodModal] = useState<{ isOpen: boolean, mealKey: string, mealTitle: string }>({ isOpen: false, mealKey: "", mealTitle: "" });
     const [recipeModal, setRecipeModal] = useState<{ isOpen: boolean, mealKey: string, mealTitle: string }>({ isOpen: false, mealKey: "", mealTitle: "" });
     const [premadeModal, setPremadeModal] = useState<{ isOpen: boolean, mealKey: string, mealTitle: string }>({ isOpen: false, mealKey: "", mealTitle: "" });
+    const [commentModal, setCommentModal] = useState<{ isOpen: boolean, mealKey: string, mealTitle: string, commentId?: string, text?: string }>({ isOpen: false, mealKey: "", mealTitle: "" });
     const [isCopying, setIsCopying] = useState(false);
 
     const handleCopyPlan = async (destinationDate: Date) => {
@@ -58,6 +60,69 @@ export function MealPlanPage() {
         } finally {
             setIsUpdating(false);
             setIsCopying(false);
+        }
+    };
+
+    const handleCommentSubmit = async (text: string) => {
+        if (!id || !commentModal.mealKey) return;
+        setIsUpdating(true);
+        try {
+            if (commentModal.commentId) {
+                await mealPlanService.updateComment({
+                    userId: id,
+                    date: format(date, "yyyy-MM-dd"),
+                    type: commentModal.mealKey,
+                    commentId: commentModal.commentId,
+                    text
+                });
+            } else {
+                await mealPlanService.addComment({
+                    userId: id,
+                    date: format(date, "yyyy-MM-dd"),
+                    type: commentModal.mealKey,
+                    text
+                });
+            }
+            const summaryData = await mealPlanService.getSummary(id, format(date, "yyyy-MM-dd"));
+            setSummary(summaryData);
+        } catch (error) {
+            console.error("Error saving comment:", error);
+        } finally {
+            setIsUpdating(false);
+            setCommentModal({ isOpen: false, mealKey: "", mealTitle: "" });
+        }
+    };
+
+    const handleDeleteComment = async (mealKey: string, commentId: string) => {
+        if (!id || !window.confirm("¿Estás seguro de que deseas eliminar este comentario?")) return;
+        setIsUpdating(true);
+        try {
+            await mealPlanService.removeComment({
+                userId: id,
+                date: format(date, "yyyy-MM-dd"),
+                type: mealKey,
+                commentId
+            });
+            const summaryData = await mealPlanService.getSummary(id, format(date, "yyyy-MM-dd"));
+            setSummary(summaryData);
+        } catch (error) {
+            console.error("Error deleting comment:", error);
+        } finally {
+            setIsUpdating(false);
+        }
+    };
+
+    const handleRegeneratePlan = async () => {
+        if (!id || !date || !window.confirm("¿Estás seguro de que deseas regenerar el plan? Se perderán los cambios manuales y se volverán a generar las comidas y comentarios automáticos.")) return;
+        setIsUpdating(true);
+        try {
+            await mealPlanService.regeneratePlan(id, format(date, "yyyy-MM-dd"));
+            const summaryData = await mealPlanService.getSummary(id, format(date, "yyyy-MM-dd"));
+            setSummary(summaryData);
+        } catch (error) {
+            console.error("Error regenerating plan:", error);
+        } finally {
+            setIsUpdating(false);
         }
     };
 
@@ -392,6 +457,16 @@ export function MealPlanPage() {
                                 />
                             </PopoverContent>
                         </Popover>
+                        <Button
+                            variant="outline"
+                            size="sm"
+                            disabled={!summary?.dailyIntake || isUpdating}
+                            onClick={handleRegeneratePlan}
+                            className="absolute -right-12 top-1/2 -translate-y-1/2 h-12 w-10 p-0 border-2 border-primary/20 hover:border-primary/40 text-primary hover:bg-primary/5 rounded-xl hidden xl:flex items-center justify-center transition-all bg-white shadow-sm"
+                            title="Regenerar Plan"
+                        >
+                            <RefreshCw className={cn("h-4 w-4", isUpdating && "animate-spin")} />
+                        </Button>
                     </div>
 
                     {/* Copy Plan Button */}
@@ -580,6 +655,16 @@ export function MealPlanPage() {
                                                 >
                                                     + Comida Pre-hecha
                                                 </Button>
+                                                <Button 
+                                                    size="sm" 
+                                                    variant="outline" 
+                                                    disabled={!summary?.dailyIntake || isUpdating}
+                                                    className="h-8 text-[10px] font-bold uppercase tracking-wider border-blue-200 text-blue-600 hover:bg-blue-50 disabled:opacity-50 disabled:cursor-not-allowed"
+                                                    onClick={() => setCommentModal({ isOpen: true, mealKey: meal.key, mealTitle: meal.title })}
+                                                >
+                                                    <MessageSquare className="h-3.5 w-3.5 mr-1" />
+                                                    + Comentario
+                                                </Button>
                                             </div>
                                         </div>
                                     </div>
@@ -596,6 +681,44 @@ export function MealPlanPage() {
                                     {meal.data.length > 0 ? (
                                         <div className="divide-y divide-gray-50">
                                             {meal.data.map((item: any, itemIdx: number) => {
+                                                if (item.isComment) {
+                                                    return (
+                                                        <div key={itemIdx} className="flex items-center gap-4 p-4 hover:bg-gray-50/50 transition-colors group/item">
+                                                            <div className="flex-shrink-0 w-10 h-10 rounded-full bg-blue-50 flex items-center justify-center">
+                                                                <MessageSquare className="h-5 w-5 text-blue-500" />
+                                                            </div>
+                                                            <div className="flex-1 min-w-0">
+                                                                <div className="flex items-center justify-between">
+                                                                    <p className="text-sm text-gray-600 font-medium italic">{item.text}</p>
+                                                                    <div className="flex items-center gap-2 opacity-0 group-hover/item:opacity-100 transition-opacity">
+                                                                        <Button
+                                                                            variant="ghost"
+                                                                            size="icon"
+                                                                            className="h-7 w-7 text-blue-500 hover:bg-blue-50"
+                                                                            onClick={() => setCommentModal({ 
+                                                                                isOpen: true, 
+                                                                                mealKey: meal.key, 
+                                                                                mealTitle: meal.title,
+                                                                                commentId: item.id,
+                                                                                text: item.text
+                                                                            })}
+                                                                        >
+                                                                            <Edit2 className="h-3.5 w-3.5" />
+                                                                        </Button>
+                                                                        <Button
+                                                                            variant="ghost"
+                                                                            size="icon"
+                                                                            className="h-7 w-7 text-red-500 hover:bg-red-50"
+                                                                            onClick={() => handleDeleteComment(meal.key, item.id)}
+                                                                        >
+                                                                            <Trash2 className="h-3.5 w-3.5" />
+                                                                        </Button>
+                                                                    </div>
+                                                                </div>
+                                                            </div>
+                                                        </div>
+                                                    );
+                                                }
                                                 const isPremade = !!item.recipeDetail;
                                                 const isChecked = item.checked === true;
                                                 const itemId = `${idx}-${itemIdx}`;
@@ -814,6 +937,13 @@ export function MealPlanPage() {
                 onClose={() => setPremadeModal({ ...premadeModal, isOpen: false })} 
                 onAdd={handleAddPremade} 
                 mealTitle={premadeModal.mealTitle} 
+            />
+            <DailyCommentModal 
+                isOpen={commentModal.isOpen} 
+                onClose={() => setCommentModal({ ...commentModal, isOpen: false })}
+                onSubmit={handleCommentSubmit}
+                mealTitle={commentModal.mealTitle}
+                initialText={commentModal.text}
             />
         </div>
     );

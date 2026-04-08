@@ -17,6 +17,7 @@ import { ProfessionalAppointments } from './components/dashboard/sections/appoin
 import { ProtectedRoute } from './components/auth/ProtectedRoute';
 import { Home } from './pages/Home/Home';
 import { MealPlanPage } from './components/dashboard/sections/MealPlan/MealPlanPage';
+import { Comentarios } from './components/dashboard/sections/Comentarios/Comentarios';
 
 const Revenue = lazy(() => import("./pages/Professional/Revenue/Revenue")); // Added lazy import
 
@@ -92,6 +93,11 @@ function App() {
             <Route path="/admin/appointment-profesional" element={
               <MainLayout>
                 <ProfessionalAppointments />
+              </MainLayout>
+            } />
+            <Route path="/comentarios" element={
+              <MainLayout>
+                <Comentarios />
               </MainLayout>
             } />
             <Route path="/home" element={

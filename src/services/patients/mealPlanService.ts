@@ -57,5 +57,17 @@ export const mealPlanService = {
             params: { userId, fromDate, toDate }
         });
         return response.data.data;
+    },
+    addComment: async (data: { type: string; text: string; userId: string | number; date: string }) => {
+        const response = await apiClient.post('/daylis/add-comment', data, { params: { date: data.date } });
+        return response.data.data;
+    },
+    updateComment: async (data: { type: string; commentId: string; text: string; userId: string | number; date: string }) => {
+        const response = await apiClient.post('/daylis/update-comment', data, { params: { date: data.date } });
+        return response.data.data;
+    },
+    removeComment: async (data: { type: string; commentId: string; userId: string | number; date: string }) => {
+        const response = await apiClient.post('/daylis/remove-comment', data, { params: { date: data.date } });
+        return response.data.data;
     }
 };

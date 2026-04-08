@@ -25,7 +25,8 @@ import {
     Briefcase,
     Calendar,
     Clock,
-    Home
+    Home,
+    MessageSquare
 } from "lucide-react";
 import {
     Sidebar as SidebarComponent,
@@ -149,6 +150,14 @@ export function Sidebar({ activeSection: _propActiveSection, setActiveSection: p
             title: "Recaudación",
             icon: <Briefcase className="h-4 w-4" />,
             rol: ["USER:PROFECIONAL"], // O el rol específico si es necesario, pero parece que es para todos los profesionales
+            isSingle: true,
+            level: 1
+        },
+        {
+            id: "/comentarios",
+            title: "Comentarios",
+            icon: <MessageSquare className="h-4 w-4" />,
+            rol: ["USER:PROFECIONAL"],
             isSingle: true,
             level: 1
         },
