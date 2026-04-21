@@ -195,17 +195,17 @@ export function MealPlanPage() {
         }, { kcal: 0, cho: 0, pro: 0, lip: 0 });
     };
 
-    const sortMealData = (data: any[]) => {
-        const food = data.filter(item => !item.isComment);
-        const comments = data.filter(item => item.isComment);
+    const sortMealData = (foodData: any[], commentsData: any[]) => {
+        const food = (foodData || []).filter(item => !item.isComment);
+        const comments = (commentsData || []).map((c: any) => ({ ...c, isComment: true }));
         return [...food, ...comments];
     };
 
     const meals = [
-        { title: "Desayuno", key: 'breakfast', data: sortMealData(summary?.dailyIntake?.breakfastEnriched || []) },
-        { title: "Almuerzo", key: 'lunch', data: sortMealData(summary?.dailyIntake?.lunchEnriched || []) },
-        { title: "Merienda", key: 'snack', data: sortMealData(summary?.dailyIntake?.snackEnriched || []) },
-        { title: "Cena", key: 'dinner', data: sortMealData(summary?.dailyIntake?.dinnerEnriched || []) },
+        { title: "Desayuno", key: 'breakfast', data: sortMealData(summary?.dailyIntake?.breakfastEnriched || [], summary?.dailyIntake?.comments?.breakfast || []) },
+        { title: "Almuerzo", key: 'lunch', data: sortMealData(summary?.dailyIntake?.lunchEnriched || [], summary?.dailyIntake?.comments?.lunch || []) },
+        { title: "Merienda", key: 'snack', data: sortMealData(summary?.dailyIntake?.snackEnriched || [], summary?.dailyIntake?.comments?.snack || []) },
+        { title: "Cena", key: 'dinner', data: sortMealData(summary?.dailyIntake?.dinnerEnriched || [], summary?.dailyIntake?.comments?.dinner || []) },
     ];
 
     const dailyTotals = meals.reduce((acc, meal) => {
