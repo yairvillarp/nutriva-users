@@ -177,13 +177,14 @@ export function MealPlanPage() {
 
     const calculateMealTotals = (mealData: any[]) => {
         return mealData.reduce((acc, item) => {
-            const isPremade = !!item.recipeDetail;
-            const foodOrRecipe = isPremade ? item.recipeDetail : (item.foodDetail || item.food || item);
+            const isRecipe = !!item.recipeDetail;
+            const isPremade = !!item.premadeDetail;
+            const foodOrRecipe = isRecipe ? item.recipeDetail : (isPremade ? item.premadeDetail : (item.foodDetail || item.food || item));
             
             const getVal = (key: 'cho' | 'protein' | 'lip' | 'kcals') => {
                 const val = item[key] ?? foodOrRecipe[key] ?? 0;
                 const base = parseFloat(val);
-                return isPremade ? base * (item.units || 1) : (base * (item.grams || 0)) / 100;
+                return (isRecipe || isPremade) ? base * (item.units || 1) : (base * (item.grams || 0)) / 100;
             };
 
             acc.kcal += getVal('kcals');
@@ -194,11 +195,17 @@ export function MealPlanPage() {
         }, { kcal: 0, cho: 0, pro: 0, lip: 0 });
     };
 
+    const sortMealData = (foodData: any[], commentsData: any[]) => {
+        const food = (foodData || []).filter(item => !item.isComment);
+        const comments = (commentsData || []).map((c: any) => ({ ...c, isComment: true }));
+        return [...food, ...comments];
+    };
+
     const meals = [
-        { title: "Desayuno", key: 'breakfast', data: summary?.dailyIntake?.breakfastEnriched || [] },
-        { title: "Almuerzo", key: 'lunch', data: summary?.dailyIntake?.lunchEnriched || [] },
-        { title: "Merienda", key: 'snack', data: summary?.dailyIntake?.snackEnriched || [] },
-        { title: "Cena", key: 'dinner', data: summary?.dailyIntake?.dinnerEnriched || [] },
+        { title: "Desayuno", key: 'breakfast', data: sortMealData(summary?.dailyIntake?.breakfastEnriched || [], summary?.dailyIntake?.comments?.breakfast || []) },
+        { title: "Almuerzo", key: 'lunch', data: sortMealData(summary?.dailyIntake?.lunchEnriched || [], summary?.dailyIntake?.comments?.lunch || []) },
+        { title: "Merienda", key: 'snack', data: sortMealData(summary?.dailyIntake?.snackEnriched || [], summary?.dailyIntake?.comments?.snack || []) },
+        { title: "Cena", key: 'dinner', data: sortMealData(summary?.dailyIntake?.dinnerEnriched || [], summary?.dailyIntake?.comments?.dinner || []) },
     ];
 
     const dailyTotals = meals.reduce((acc, meal) => {
@@ -274,29 +281,15 @@ export function MealPlanPage() {
         if (!id) return;
         setIsUpdating(true);
         try {
-            if (premadeMeal.premadefoods && premadeMeal.premadefoods.length > 0) {
-                for (const pf of premadeMeal.premadefoods) {
-                    const foodDetail = pf.food || {};
-                    await mealPlanService.addFood({
-                        type: premadeModal.mealKey,
-                        product: { 
-                            ...foodDetail,
-                            foodId: pf.foodId,
-                            food: foodDetail,
-                            grams: (parseFloat(pf.grams) || 0) * unitsMultiplier,
-                            units: (parseFloat(pf.units) || 0) * unitsMultiplier,
-                            unitsName: pf.unitsName || foodDetail.unitsName || 'g',
-                            isFromPremade: true,
-                            premadeName: premadeMeal.name
-                        },
-                        userId: id,
-                        date: format(date, "yyyy-MM-dd")
-                    });
-                }
-                
-                const summaryData = await mealPlanService.getSummary(id, format(date, "yyyy-MM-dd"));
-                setSummary(summaryData);
-            }
+            await mealPlanService.addPremade({
+                type: premadeModal.mealKey,
+                premadeId: premadeMeal.id as string,
+                unit: unitsMultiplier,
+                userId: id,
+                date: format(date, "yyyy-MM-dd")
+            });
+            const summaryData = await mealPlanService.getSummary(id, format(date, "yyyy-MM-dd"));
+            setSummary(summaryData);
         } catch (error) {
             console.error("Error adding premade meal:", error);
         } finally {
@@ -308,10 +301,17 @@ export function MealPlanPage() {
         if (!id) return;
         setIsUpdating(true);
         try {
-            if (item.recipeDetail) {
+            if (item.premadeDetail || item.premadeId) {
+                await mealPlanService.deletePremade({
+                    type: mealKey,
+                    premadeId: item.premadeId || item.premade?.id || item.premadeDetail?.id,
+                    userId: id,
+                    date: format(date, "yyyy-MM-dd")
+                });
+            } else if (item.recipeDetail) {
                 await mealPlanService.deleteRecipe({
                     type: mealKey,
-                    recipeId: item.recipeId || item.recipe?.id || item.recipeDetail.id,
+                    recipeId: item.recipeId || item.recipe?.id || item.recipeDetail?.id,
                     userId: id,
                     date: format(date, "yyyy-MM-dd")
                 });
@@ -323,7 +323,6 @@ export function MealPlanPage() {
                     date: format(date, "yyyy-MM-dd")
                 });
             }
-            // Refresh data
             const summaryData = await mealPlanService.getSummary(id, format(date, "yyyy-MM-dd"));
             setSummary(summaryData);
         } catch (error) {
@@ -719,11 +718,13 @@ export function MealPlanPage() {
                                                         </div>
                                                     );
                                                 }
-                                                const isPremade = !!item.recipeDetail;
+                                                const isRecipe = !!item.recipeDetail;
+                                                const isPremade = !!item.premadeDetail;
+                                                const isCombined = isRecipe || isPremade;
                                                 const isChecked = item.checked === true;
                                                 const itemId = `${idx}-${itemIdx}`;
                                                 const expanded = expandedItems[itemId];
-                                                const foodOrRecipe = isPremade ? item.recipeDetail : (item.foodDetail || item.food || item);
+                                                const foodOrRecipe = isRecipe ? item.recipeDetail : (isPremade ? item.premadeDetail : (item.foodDetail || item.food || item));
 
                                                 return (
                                                     <div key={itemIdx} className={cn(
@@ -736,7 +737,7 @@ export function MealPlanPage() {
                                                             const getMacroValue = (macroKey: 'cho' | 'protein' | 'lip' | 'kcals') => {
                                                                 const val = item[macroKey] ?? item.plan?.[macroKey] ?? foodOrRecipe[macroKey] ?? 0;
                                                                 const baseValue = parseFloat(val);
-                                                                if (isPremade) {
+                                                                if (isCombined) {
                                                                     return baseValue * (item.units || 1);
                                                                 } else {
                                                                     if (item[macroKey] !== undefined && item[macroKey] !== null) return baseValue;
@@ -756,13 +757,15 @@ export function MealPlanPage() {
                                                                             className="flex gap-4 cursor-pointer flex-1"
                                                                             onClick={() => toggleExpand(itemId)}
                                                                         >
-                                                                            <div className={cn(
-                                                                                "p-3 rounded-2xl transition-all duration-300 shadow-sm",
-                                                                                isPremade
-                                                                                    ? "bg-purple-100 text-purple-700 group-hover:bg-purple-200"
-                                                                                    : "bg-emerald-100 text-emerald-700 group-hover:bg-emerald-200",
-                                                                                isChecked && "bg-emerald-500 text-white shadow-emerald-200"
-                                                                            )}>
+                                                                            <div
+                                                                                className={cn(
+                                                                                    "p-3 rounded-2xl transition-all duration-300 shadow-sm",
+                                                                                    isCombined
+                                                                                        ? "bg-purple-100 text-purple-700 group-hover:bg-purple-200"
+                                                                                        : "bg-emerald-100 text-emerald-700 group-hover:bg-emerald-200",
+                                                                                    isChecked && "bg-emerald-500 text-white shadow-emerald-200"
+                                                                                )}
+                                                                            >
                                                                                 <Apple className="h-5 w-5" />
                                                                             </div>
                                                                             <div className="space-y-1">
@@ -771,13 +774,13 @@ export function MealPlanPage() {
                                                                                         "font-black text-gray-900 text-base tracking-tight",
                                                                                         isChecked && "text-emerald-900"
                                                                                     )}>
-                                                                                        {isPremade ? item.recipeDetail.name : (item.foodDetail?.name || item.name || item.food?.name)}
+                                                                                        {isCombined ? (item.recipeDetail?.name || item.premadeDetail?.name) : (item.foodDetail?.name || item.name || item.food?.name)}
                                                                                     </h4>
                                                                                     {expanded ? <ChevronDown className="h-4 w-4 text-gray-400" /> : <ChevronRight className="h-4 w-4 text-gray-400" />}
                                                                                     
-                                                                                    {item.isFromPremade && (
+                                                                                    {(item.isFromPremade || isPremade) && (
                                                                                         <span className="bg-orange-100 text-orange-700 px-2 py-0.5 rounded-full text-[10px] font-black uppercase tracking-wider shadow-sm truncate max-w-[150px]">
-                                                                                            {item.premadeName || 'Comida Pre-hecha'}
+                                                                                            {item.premadeName || item.premadeDetail?.name || 'Comida Pre-hecha'}
                                                                                         </span>
                                                                                     )}
                                                                                     
@@ -793,7 +796,7 @@ export function MealPlanPage() {
                                                                                 </div>
                                                                                 <p className="text-sm text-gray-400 font-bold">
                                                                                     {item.units} {item.unitsName || "unidades"} • {Math.round(item.grams || 0)}g
-                                                                                    {isPremade && <span className="ml-2 px-2 py-0.5 bg-purple-100 text-purple-700 rounded text-[10px] uppercase font-black tracking-widest">Receta</span>}
+                                                                                    {isCombined && <span className="ml-2 px-2 py-0.5 bg-purple-100 text-purple-700 rounded text-[10px] uppercase font-black tracking-widest">{isRecipe ? 'Receta' : 'Comida Pre-hecha'}</span>}
                                                                                 </p>
                                                                             </div>
                                                                         </div>

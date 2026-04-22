@@ -46,6 +46,30 @@ export const mealPlanService = {
         const response = await apiClient.post('/api/daily/deleterecipe', data);
         return response.data.data;
     },
+    deletePremade: async (data: { type: string; premadeId: number | string; userId?: string | number; date?: string }) => {
+        const response = await apiClient.post('/api/daily/deletepremade', data);
+        return response.data.data;
+    },
+    addPremade: async (data: { type: string; premadeId: number | string; unit: number; userId?: string | number; date?: string }) => {
+        const response = await apiClient.post('/api/daily/addpremade', data);
+        return response.data.data;
+    },
+    registerRecipe: async (data: { recipeId: number | string; type: string; date?: string }) => {
+        const response = await apiClient.post('/api/daily/register-recipe', data, { params: { date: data.date } });
+        return response.data.data;
+    },
+    unregisterRecipe: async (data: { recipeId: number | string; type: string; date?: string }) => {
+        const response = await apiClient.post('/api/daily/unregister-recipe', data, { params: { date: data.date } });
+        return response.data.data;
+    },
+    registerPremade: async (data: { premadeId: number | string; type: string; date?: string }) => {
+        const response = await apiClient.post('/api/daily/register-premade', data, { params: { date: data.date } });
+        return response.data.data;
+    },
+    unregisterPremade: async (data: { premadeId: number | string; type: string; date?: string }) => {
+        const response = await apiClient.post('/api/daily/unregister-premade', data, { params: { date: data.date } });
+        return response.data.data;
+    },
     regeneratePlan: async (userId: string | number, date: string) => {
         const response = await apiClient.get('/api/dashboard/regenerate-plan', {
             params: { userId, date }
